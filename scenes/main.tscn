@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bd0tslyubi63u" path="res://scenes/Monster_player.tscn" id="1_o5qli"]
 [ext_resource type="Texture2D" uid="uid://bm3myxkysdvwk" path="res://art/tilemap.png" id="2_sugp2"]
+[ext_resource type="PackedScene" uid="uid://b4s5wux2tsv2i" path="res://scenes/human_npc.tscn" id="4_jyhfs"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o5qli"]
 texture = ExtResource("2_sugp2")
@@ -317,3 +318,6 @@ tile_set = SubResource("TileSet_c7ri7")
 
 [node name="player_monster" parent="." unique_id=72208562 instance=ExtResource("1_o5qli")]
 position = Vector2(-177, 259)
+
+[node name="Human_npc" parent="." unique_id=1641091016 instance=ExtResource("4_jyhfs")]
+position = Vector2(-178, 106)

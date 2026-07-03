@@ -51,7 +51,7 @@ animations = [{
 }],
 "loop": 1,
 "name": &"dash",
-"speed": 5.0
+"speed": 15.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -87,4 +87,4 @@ shape = SubResource("CapsuleShape2D_jwl47")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=895474398]
 sprite_frames = SubResource("SpriteFrames_2sbeh")
-animation = &"idle"
+animation = &"dash"
