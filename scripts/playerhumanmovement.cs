@@ -19,7 +19,14 @@ public partial class playerhumanmovement : CharacterBody2D
 			_animatedSprite.Play("walk");
 		else
 			_animatedSprite.Play("idle");
-		
+		if (direction.X > 0)
+		{
+			_animatedSprite.FlipH = false;
+		}
+		else if (direction.X < 0)
+		{
+			_animatedSprite.FlipH = true;
+		}
 		MoveAndSlide();
 	}
 }
