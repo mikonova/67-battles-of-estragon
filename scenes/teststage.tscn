@@ -1,9 +1,10 @@
-[gd_scene format=3 uid="uid://bv18rg1qfx1dc"]
+[gd_scene load_steps=4 format=3 uid="uid://cp02jct6ec7fh"]
 
 [ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_7uh7r"]
+[ext_resource type="Texture2D" uid="uid://i84ej4o4k0gi" path="res://art/Bush/ks33.png" id="2_bush"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2fovf"]
-size = Vector2(156.5, 127)
+size = Vector2(92, 101)
 
 [node name="Node2D" type="Node2D" unique_id=246083452]
 
@@ -17,14 +18,15 @@ offset_right = 455.0
 offset_bottom = 320.0
 color = Color(0, 0, 0, 1)
 
-[node name="ColorRect2" type="ColorRect" parent="." unique_id=618956724]
-offset_left = 327.0
-offset_top = 36.0
-offset_right = 367.0
-offset_bottom = 76.0
+[node name="BigBush" type="Node2D" parent="." unique_id=618956724]
+position = Vector2(200, 193)
 
-[node name="BigBush" type="Area2D" parent="ColorRect2" unique_id=1726992293]
+[node name="BushSprite" type="Sprite2D" parent="BigBush" unique_id=1726992293]
+texture = ExtResource("2_bush")
 
-[node name="BigBush" type="CollisionShape2D" parent="ColorRect2/BigBush" unique_id=277348129]
-position = Vector2(22, 21)
+[node name="BigBush" type="Area2D" parent="BigBush" groups=["big_bush"]]
+collision_layer = 2
+monitorable = true
+
+[node name="BigBush" type="CollisionShape2D" parent="BigBush/BigBush"]
 shape = SubResource("RectangleShape2D_2fovf")

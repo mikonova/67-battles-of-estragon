@@ -163,7 +163,7 @@ public partial class Monster : CharacterBody2D
 
 	private void ProcessChase()
 	{
-		if (!GodotObject.IsInstanceValid(_player))
+		if (!GodotObject.IsInstanceValid(_player) || !IsPlayerVisible(_player))
 		{
 			_player = FindPlayerInVision();
 		}
@@ -226,6 +226,11 @@ public partial class Monster : CharacterBody2D
 		);
 	}
 
+	private static bool IsPlayerVisible(Node2D player)
+	{
+		return player is not playerhumanmovement human || !human.IsHiding;
+	}
+
 	private Node2D FindPlayerInVision()
 	{
 		Node2D closest = null;
@@ -233,7 +238,7 @@ public partial class Monster : CharacterBody2D
 
 		foreach (Node node in GetTree().GetNodesInGroup(PlayerGroup))
 		{
-			if (node is Node2D player)
+			if (node is Node2D player && IsPlayerVisible(player))
 			{
 				float distance = GlobalPosition.DistanceTo(player.GlobalPosition);
 				if (distance <= closestDistance)

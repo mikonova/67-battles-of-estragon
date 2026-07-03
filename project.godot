@@ -12,7 +12,7 @@ config_version=5
 
 config/name="New Game Project"
 run/main_scene="uid://bv18rg1qfx1dc"
-config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
@@ -64,6 +64,11 @@ interact={
 ]
 }
 
+[layer_names]
+
+2d_physics/layer_1="world"
+2d_physics/layer_2="big_bush"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
@@ -71,7 +76,7 @@ interact={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
