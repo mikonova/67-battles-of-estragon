@@ -38267,6 +38267,3 @@ shape = SubResource("RectangleShape2D_house_block")
 [node name="BottomBarrier" type="CollisionShape2D" parent="Collisions" unique_id=1743697883]
 position = Vector2(0, 6472)
 shape = SubResource("RectangleShape2D_bottom_barrier")
-
-[node name="Node2D" parent="." unique_id=201889279 instance=ExtResource("29_v2o8m")]
-position = Vector2(-71, 240)
