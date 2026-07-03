@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://2yvq6yiiep7y"]
+
+[ext_resource type="Texture2D" uid="uid://fv27qbpqbqu8" path="res://art/MainMenu/mainmeny.png" id="1_l6cm7"]
+
+[node name="MainMenu" type="Control" unique_id=1114247144]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Mainmeny" type="Sprite2D" parent="." unique_id=1657511624]
+position = Vector2(452, 362)
+scale = Vector2(0.6452763, 0.6452763)
+texture = ExtResource("1_l6cm7")
