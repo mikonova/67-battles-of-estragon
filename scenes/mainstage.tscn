@@ -1,15 +1,29 @@
-[gd_scene format=3 uid="uid://bv18rg1qfx1dc"]
+[gd_scene load_steps=4 format=3 uid="uid://bv18rg1qfx1dc"]
 
-[ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_ek4rn"]
+[ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
 
-[node name="Node2D" type="Node2D" unique_id=246083452]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
+size = Vector2(542, 367)
 
-[node name="CharacterBody2D" parent="." unique_id=1740445758 instance=ExtResource("1_ek4rn")]
-position = Vector2(115, 193)
+[node name="MainStage" type="Node2D" unique_id=246083452]
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=742600850]
+[node name="PlayArea" type="ColorRect" parent="." unique_id=742600850]
 offset_left = -122.0
 offset_top = -40.0
 offset_right = 420.0
 offset_bottom = 327.0
 color = Color(0, 0, 0, 1)
+
+[node name="WanderBounds" type="Area2D" parent="." unique_id=1982736451]
+position = Vector2(149, 143.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WanderBounds" unique_id=1293847562]
+shape = SubResource("RectangleShape2D_wander")
+
+[node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
+position = Vector2(149, 143.5)
+
+[node name="Monster" parent="." unique_id=3847562910 instance=ExtResource("2_monster")]
+WanderBoundsPath = NodePath("../WanderBounds")
+WanderArea = Rect2(-122, -40, 542, 367)
