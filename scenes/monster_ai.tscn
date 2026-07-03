@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://jivhbt2g01tb"]
+
+[ext_resource type="Script" uid="uid://ditc4kpe0b7uo" path="res://scripts/MonsterAI/Monster.cs" id="1_monster"]
+[ext_resource type="Texture2D" uid="uid://dci6o7htkbwb4" path="res://art/Monster/mn7.png" id="2_texture"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_monster"]
+size = Vector2(40, 64)
+
+[node name="MonsterAI" type="Node2D" unique_id=570189648]
+
+[node name="Monster" type="CharacterBody2D" parent="." unique_id=1400307445]
+position = Vector2(1121, 770)
+scale = Vector2(2, 2)
+script = ExtResource("1_monster")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Monster" unique_id=2847561903]
+shape = SubResource("RectangleShape2D_monster")
+
+[node name="Sprite2D" type="Sprite2D" parent="Monster" unique_id=3947562014]
+texture = ExtResource("2_texture")
