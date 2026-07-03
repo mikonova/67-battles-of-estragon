@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class Monster : CharacterBody2D
 {
@@ -7,6 +8,7 @@ public partial class Monster : CharacterBody2D
 		Enter,
 		Wander,
 		Chase,
+		Sweep,
 		Leave
 	}
 
@@ -24,23 +26,34 @@ public partial class Monster : CharacterBody2D
 	[Signal]
 	public delegate void LeftMapEventHandler();
 
+	[ExportGroup("Mode")]
+	[Export] public bool EncounterMode = true;
+
 	[ExportGroup("Movement")]
 	[Export] public float EnterSpeed = 180f;
 	[Export] public float WanderSpeed = 90f;
 	[Export] public float ChaseSpeed = 320f;
-	[Export] public float LeaveSpeed = 220f;
+	[Export] public float SweepSpeed = 240f;
+	[Export] public float LeaveSpeed = 280f;
 	[Export] public float ArriveDistance = 12f;
 	[Export] public bool RotateTowardMovement = false;
 
 	[ExportGroup("Spawn")]
 	[Export] public MapSide EntrySide = MapSide.Top;
 	[Export] public float EntryOffset = 80f;
+	[Export] public float EncounterSpawnDistance = 580f;
+	[Export] public float EncounterLeaveDistance = 650f;
 
 	[ExportGroup("Wander")]
 	[Export] public Rect2 WanderArea = new(100, 100, 400, 300);
 	[Export] public NodePath WanderBoundsPath;
 	[Export] public float WanderWaitTime = 1.5f;
 	[Export] public float WanderEdgeMargin = 24f;
+
+	[ExportGroup("Sweep")]
+	[Export] public float SweepRadius = 300f;
+	[Export] public int SweepWaypointCount = 6;
+	[Export] public float NearbyDistance = 400f;
 
 	[ExportGroup("Vision")]
 	[Export] public float VisionRange = 280f;
@@ -50,33 +63,54 @@ public partial class Monster : CharacterBody2D
 	[ExportGroup("Leave")]
 	[Export] public MapSide LeaveSide = MapSide.Right;
 	[Export] public float LeaveOffset = 100f;
-	
+
 	[ExportGroup("Attack")]
 	[Export] public float BiteDistance = 45f;
 	[Export] public float BiteCooldown = 1.2f;
 
 	private AnimatedSprite2D _sprite;
-	private bool _isBiting = false;
-	private float _biteTimer = 0f;
+	private CollisionShape2D _collisionShape;
+	private bool _isBiting;
+	private float _biteTimer;
 
 	private State _state = State.Enter;
 	private Vector2 _wanderTarget;
 	private float _wanderTimer;
 	private Node2D _player;
 	private Vector2 _leaveTarget;
+	private Vector2 _encounterCenter;
+	private readonly List<Vector2> _sweepWaypoints = new();
+	private int _sweepIndex;
 
 	public State GetState() => _state;
 
+	public bool IsNearbyPlayer(Node2D player)
+	{
+		if (player == null || !Visible)
+		{
+			return false;
+		}
+
+		return GlobalPosition.DistanceTo(player.GlobalPosition) <= NearbyDistance;
+	}
+
 	public override void _Ready()
 	{
+		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		_collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
+		_sprite.AnimationFinished += OnAnimationFinished;
+		PlayAnim("idle");
+
+		if (EncounterMode)
+		{
+			SetEncounterDormant();
+			return;
+		}
+
 		RefreshWanderAreaFromNode();
 		GlobalPosition = GetSpawnPositionOutside();
 		_leaveTarget = GetLeavePositionOutside();
 		PickWanderTarget();
-		
-		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
-		_sprite.AnimationFinished += OnAnimationFinished;
-		PlayAnim("idle");
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -99,10 +133,26 @@ public partial class Monster : CharacterBody2D
 			case State.Chase:
 				ProcessChase();
 				break;
+			case State.Sweep:
+				ProcessSweep();
+				break;
 			case State.Leave:
 				ProcessLeave();
 				break;
 		}
+	}
+
+	public void BeginEncounter(Vector2 center, MapSide entrySide)
+	{
+		_encounterCenter = center;
+		EntrySide = entrySide;
+		LeaveSide = GetOppositeSide(entrySide);
+		BuildSweepWaypoints();
+		_sweepIndex = 0;
+		_leaveTarget = GetLeavePositionFromCenter();
+		GlobalPosition = GetSpawnPositionNearCenter();
+		SetEncounterActive();
+		SetState(State.Enter);
 	}
 
 	public void SetWanderArea(Rect2 area)
@@ -126,8 +176,24 @@ public partial class Monster : CharacterBody2D
 	public void StartLeaving(MapSide? side = null)
 	{
 		LeaveSide = side ?? LeaveSide;
-		_leaveTarget = GetLeavePositionOutside();
+		_leaveTarget = EncounterMode
+			? GetLeavePositionFromCenter()
+			: GetLeavePositionOutside();
 		SetState(State.Leave);
+	}
+
+	private void SetEncounterDormant()
+	{
+		Visible = false;
+		SetProcess(false);
+		SetPhysicsProcess(false);
+	}
+
+	private void SetEncounterActive()
+	{
+		Visible = true;
+		SetProcess(true);
+		SetPhysicsProcess(true);
 	}
 
 	private void SetState(State newState)
@@ -145,16 +211,55 @@ public partial class Monster : CharacterBody2D
 			PickWanderTarget();
 			_wanderTimer = 0f;
 		}
+
+		if (newState == State.Leave)
+		{
+			SetGhostMovement(true);
+		}
+	}
+
+	private void SetGhostMovement(bool enabled)
+	{
+		CollisionLayer = 0;
+		CollisionMask = 0;
+
+		if (_collisionShape != null)
+		{
+			_collisionShape.Disabled = enabled;
+		}
 	}
 
 	private void ProcessEnter()
 	{
-		Vector2 entryPoint = GetEntryPointOnMap();
+		Vector2 entryPoint = EncounterMode
+			? GetEncounterEntryPoint()
+			: GetEntryPointOnMap();
 		MoveToward(entryPoint, EnterSpeed);
 
 		if (GlobalPosition.DistanceTo(entryPoint) <= ArriveDistance)
 		{
-			SetState(State.Wander);
+			SetState(EncounterMode ? State.Sweep : State.Wander);
+		}
+	}
+
+	private void ProcessSweep()
+	{
+		if (_sweepWaypoints.Count == 0)
+		{
+			StartLeaving();
+			return;
+		}
+
+		Vector2 target = _sweepWaypoints[_sweepIndex];
+		MoveToward(target, SweepSpeed);
+
+		if (GlobalPosition.DistanceTo(target) <= ArriveDistance)
+		{
+			_sweepIndex++;
+			if (_sweepIndex >= _sweepWaypoints.Count)
+			{
+				StartLeaving();
+			}
 		}
 	}
 
@@ -210,33 +315,62 @@ public partial class Monster : CharacterBody2D
 
 		MoveToward(_player.GlobalPosition, ChaseSpeed);
 	}
-	
+
 	private void Bite()
-{
-	Velocity = Vector2.Zero;
-	MoveAndSlide();
-
-	if (_biteTimer > 0f || _isBiting)
 	{
-		return;
+		Velocity = Vector2.Zero;
+		MoveAndSlide();
+
+		if (_biteTimer > 0f || _isBiting)
+		{
+			return;
+		}
+
+		_isBiting = true;
+		_biteTimer = BiteCooldown;
+		PlayAnim("bite");
+		GD.Print("Монстр кусает игрока");
 	}
-
-	_isBiting = true;
-	_biteTimer = BiteCooldown;
-
-	PlayAnim("bite");
-
-	GD.Print("Монстр кусает игрока");
-}
 
 	private void ProcessLeave()
 	{
-		MoveToward(_leaveTarget, LeaveSpeed);
+		MoveTowardGhost(_leaveTarget, LeaveSpeed);
 
 		if (GlobalPosition.DistanceTo(_leaveTarget) <= ArriveDistance)
 		{
 			EmitSignal(SignalName.LeftMap);
 			QueueFree();
+		}
+	}
+
+	private void MoveTowardGhost(Vector2 target, float speed)
+	{
+		Vector2 offset = target - GlobalPosition;
+
+		if (offset.Length() <= ArriveDistance)
+		{
+			Velocity = Vector2.Zero;
+
+			if (!_isBiting)
+			{
+				PlayAnim("idle");
+			}
+
+			return;
+		}
+
+		float step = speed * (float)GetPhysicsProcessDeltaTime();
+		GlobalPosition += offset.Normalized() * Mathf.Min(step, offset.Length());
+		Velocity = offset.Normalized() * speed;
+
+		if (RotateTowardMovement)
+		{
+			Rotation = offset.Angle();
+		}
+
+		if (!_isBiting)
+		{
+			PlayAnim("run");
 		}
 	}
 
@@ -269,6 +403,18 @@ public partial class Monster : CharacterBody2D
 		}
 
 		MoveAndSlide();
+	}
+
+	private void BuildSweepWaypoints()
+	{
+		_sweepWaypoints.Clear();
+
+		for (int i = 0; i < SweepWaypointCount; i++)
+		{
+			float angle = (float)GD.RandRange(0f, Mathf.Tau);
+			float radius = (float)GD.RandRange(SweepRadius * 0.45f, SweepRadius);
+			_sweepWaypoints.Add(_encounterCenter + Vector2.FromAngle(angle) * radius);
+		}
 	}
 
 	private void PickWanderTarget()
@@ -363,6 +509,41 @@ public partial class Monster : CharacterBody2D
 		};
 	}
 
+	private Vector2 GetSpawnPositionNearCenter()
+	{
+		Vector2 sideOffset = GetSideOffset(EntrySide, EncounterSpawnDistance);
+		float jitter = (float)GD.RandRange(-120f, 120f);
+
+		return EntrySide switch
+		{
+			MapSide.Top or MapSide.Bottom => _encounterCenter + sideOffset + new Vector2(jitter, 0f),
+			_ => _encounterCenter + sideOffset + new Vector2(0f, jitter)
+		};
+	}
+
+	private Vector2 GetEncounterEntryPoint()
+	{
+		Vector2 direction = (_encounterCenter - GlobalPosition).Normalized();
+		if (direction == Vector2.Zero)
+		{
+			direction = -GetSideOffset(EntrySide, 1f).Normalized();
+		}
+
+		return _encounterCenter - direction * SweepRadius * 0.85f;
+	}
+
+	private Vector2 GetLeavePositionFromCenter()
+	{
+		Vector2 sideOffset = GetSideOffset(LeaveSide, EncounterLeaveDistance);
+		float jitter = (float)GD.RandRange(-100f, 100f);
+
+		return LeaveSide switch
+		{
+			MapSide.Top or MapSide.Bottom => _encounterCenter + sideOffset + new Vector2(jitter, 0f),
+			_ => _encounterCenter + sideOffset + new Vector2(0f, jitter)
+		};
+	}
+
 	private Vector2 GetLeavePositionOutside()
 	{
 		Rect2 inner = GetInnerWanderRect();
@@ -375,6 +556,30 @@ public partial class Monster : CharacterBody2D
 			MapSide.Top => new Vector2(center.X, inner.Position.Y - LeaveOffset),
 			MapSide.Bottom => new Vector2(center.X, inner.End.Y + LeaveOffset),
 			_ => GlobalPosition
+		};
+	}
+
+	private static Vector2 GetSideOffset(MapSide side, float distance)
+	{
+		return side switch
+		{
+			MapSide.Top => new Vector2(0f, -distance),
+			MapSide.Bottom => new Vector2(0f, distance),
+			MapSide.Left => new Vector2(-distance, 0f),
+			MapSide.Right => new Vector2(distance, 0f),
+			_ => Vector2.Zero
+		};
+	}
+
+	private static MapSide GetOppositeSide(MapSide side)
+	{
+		return side switch
+		{
+			MapSide.Top => MapSide.Bottom,
+			MapSide.Bottom => MapSide.Top,
+			MapSide.Left => MapSide.Right,
+			MapSide.Right => MapSide.Left,
+			_ => MapSide.Right
 		};
 	}
 
@@ -392,7 +597,7 @@ public partial class Monster : CharacterBody2D
 		Vector2 globalEnd = shapeNode.GlobalTransform * localRect.End;
 		return new Rect2(globalPos, globalEnd - globalPos);
 	}
-	
+
 	private void PlayAnim(string animName)
 	{
 		if (_sprite == null)

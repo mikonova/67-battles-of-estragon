@@ -1,9 +1,11 @@
 [gd_scene format=3 uid="uid://bv18rg1qfx1dc"]
 
 [ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_player"]
-[ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
 [ext_resource type="PackedScene" uid="uid://ca8qbi81njr8k" path="res://scenes/map/forest_trail_map.tscn" id="3_map"]
-[ext_resource type="PackedScene" uid="uid://dqsiknar6s7ox" path="res://scenes/cumpfire.tscn" id="4_w6jgl"]
+[ext_resource type="Script" path="res://scripts/MonsterAI/MonsterEncounterController.cs" id="4_encounter"]
+[ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="5_monster"]
+[ext_resource type="AudioStream" path="res://sounds/skitz.ogg" id="6_skitz"]
+[ext_resource type="AudioStream" path="res://sounds/heart.ogg" id="7_heart"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
@@ -21,9 +23,16 @@ shape = SubResource("RectangleShape2D_wander")
 [node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
 position = Vector2(0, 6220)
 
-[node name="Monster" parent="." unique_id=-447404386 instance=ExtResource("2_monster")]
-WanderArea = Rect2(-900, 0, 1800, 6500)
+[node name="MonsterEncounterController" type="Node" parent="."]
+script = ExtResource("4_encounter")
+MonsterScene = ExtResource("5_monster")
+PlayerPath = NodePath("../Player")
 WanderBoundsPath = NodePath("../WanderBounds")
-
-[node name="Cumpfire" parent="." unique_id=1821674515 instance=ExtResource("4_w6jgl")]
-position = Vector2(-34, 5932)
+SkitzSound = ExtResource("6_skitz")
+HeartSound = ExtResource("7_heart")
+SkitzVolumeDb = -10.0
+HeartVolumeDb = 5.0
+FirstEncounterMinDelay = 8.0
+FirstEncounterMaxDelay = 15.0
+RespawnMinDelay = 15.0
+RespawnMaxDelay = 40.0
