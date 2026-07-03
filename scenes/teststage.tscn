@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bv18rg1qfx1dc"]
+
+[ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_7uh7r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2fovf"]
+size = Vector2(156.5, 127)
+
+[node name="Node2D" type="Node2D" unique_id=246083452]
+
+[node name="CharacterBody2D" parent="." unique_id=1740445758 instance=ExtResource("1_7uh7r")]
+position = Vector2(115, 193)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=742600850]
+offset_left = -87.0
+offset_top = -47.0
+offset_right = 455.0
+offset_bottom = 320.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=618956724]
+offset_left = 327.0
+offset_top = 36.0
+offset_right = 367.0
+offset_bottom = 76.0
+
+[node name="BigBush" type="Area2D" parent="ColorRect2" unique_id=1726992293]
+
+[node name="BigBush" type="CollisionShape2D" parent="ColorRect2/BigBush" unique_id=277348129]
+position = Vector2(22, 21)
+shape = SubResource("RectangleShape2D_2fovf")
