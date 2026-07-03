@@ -2,6 +2,15 @@
 
 [ext_resource type="Texture2D" uid="uid://fv27qbpqbqu8" path="res://art/MainMenu/mainmeny.png" id="1_l6cm7"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4kxuq"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mti6b"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mm1bc"]
+bg_color = Color(0.6, 0.6, 0.6, 0.09411765)
+
 [node name="MainMenu" type="Control" unique_id=1114247144]
 layout_mode = 3
 anchors_preset = 15
@@ -10,7 +19,43 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Mainmeny" type="Sprite2D" parent="." unique_id=1657511624]
-position = Vector2(452, 362)
-scale = Vector2(0.6452763, 0.6452763)
+[node name="Panel" type="Panel" parent="." unique_id=1531082727]
+layout_mode = 0
+offset_right = 1917.0
+offset_bottom = 1093.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4kxuq")
+
+[node name="Mainmeny" type="Sprite2D" parent="Panel" unique_id=1657511624]
+position = Vector2(956.6702, 541.00006)
+scale = Vector2(0.96434957, 0.96434945)
 texture = ExtResource("1_l6cm7")
+
+[node name="Button" type="Button" parent="Panel/Mainmeny" unique_id=463769341]
+offset_left = -538.8816
+offset_top = -106.80783
+offset_right = -154.16635
+offset_bottom = -15.554596
+theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
+
+[node name="Button4" type="Button" parent="Panel/Mainmeny" unique_id=328290009]
+offset_left = -538.8816
+offset_top = 197.0239
+offset_right = -154.16635
+offset_bottom = 288.27713
+theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
+
+[node name="Panel" type="Panel" parent="Panel" unique_id=490685933]
+layout_mode = 0
+offset_left = 437.0
+offset_top = 542.0
+offset_right = 808.0
+offset_bottom = 631.0
+
+[node name="Panel2" type="Panel" parent="Panel" unique_id=914021632]
+layout_mode = 0
+offset_left = 437.0
+offset_top = 641.0
+offset_right = 808.0
+offset_bottom = 730.0
