@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://bd0tslyubi63u"]
+
+[ext_resource type="Script" uid="uid://dygk2jjge2vst" path="res://scripts/MonsterPlayer.cs" id="1_ai0pd"]
+[ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="1_rh0am"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2sbeh"]
+size = Vector2(127, 126)
+
+[node name="player_monster" type="CharacterBody2D" unique_id=72208562]
+script = ExtResource("1_ai0pd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1379772773]
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_2sbeh")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=39464681]
+texture = ExtResource("1_rh0am")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=222796651]
