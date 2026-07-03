@@ -5,6 +5,7 @@ const TILE_WIDTH := 76.0
 
 @export var map_half_width := 900.0
 @export var map_height := 6500.0
+@export var bottom_visual_extension := 1400.0
 @export var path_clearance_tiles := 5
 @export var viewport_half_width := 960.0
 @export var thicket_overflow := 360.0
@@ -14,8 +15,10 @@ const TILE_WIDTH := 76.0
 @export var rebuild_map := false:
 	set(value):
 		rebuild_map = false
-		if value and is_node_ready():
-			_build_map()
+		if value:
+			if has_meta("map_built"):
+				remove_meta("map_built")
+			call_deferred("_build_map")
 
 @onready var _floor: Polygon2D = $Ground/ForestFloor
 @onready var _trees: Node2D = $Decorations/Trees
@@ -24,6 +27,7 @@ const TILE_WIDTH := 76.0
 @onready var _collisions: StaticBody2D = $Collisions
 @onready var _left_wall: CollisionShape2D = $Collisions/LeftForestWall
 @onready var _right_wall: CollisionShape2D = $Collisions/RightForestWall
+@onready var _bottom_wall: CollisionShape2D = $Collisions/BottomBarrier
 
 var _tree_textures: Array[Texture2D] = [
 	preload("res://art/tree/tr1.png"),
@@ -70,15 +74,30 @@ var _stump_textures: Array[Texture2D] = [
 
 
 func _ready() -> void:
-	_build_map()
+	if has_meta("map_built"):
+		return
+	if _should_auto_build():
+		call_deferred("_build_map")
+
+
+func _should_auto_build() -> bool:
+	if not Engine.is_editor_hint():
+		return true
+	return get_tree().edited_scene_root == self
 
 
 func _build_map() -> void:
+	if not is_inside_tree():
+		return
+	if _floor == null or _trees == null or _path_details == null or _bottom_wall == null:
+		return
+
 	_build_floor()
 	_build_thicket()
 	_build_path_details()
 	_build_collisions()
 	_position_landmarks()
+	set_meta("map_built", true)
 
 
 func _path_half_width() -> float:
@@ -89,14 +108,18 @@ func _visual_half_width() -> float:
 	return maxf(map_half_width, viewport_half_width + thicket_overflow)
 
 
+func _visual_bottom() -> float:
+	return map_height + bottom_visual_extension
+
+
 func _build_floor() -> void:
 	var w := _visual_half_width()
-	var h := map_height
+	var bottom := _visual_bottom()
 	_floor.polygon = PackedVector2Array([
 		Vector2(-w, -120),
 		Vector2(w, -120),
-		Vector2(w, h + 120),
-		Vector2(-w, h + 120),
+		Vector2(w, bottom + 120),
+		Vector2(-w, bottom + 120),
 	])
 	_floor.color = Color.BLACK
 
@@ -117,7 +140,7 @@ func _build_thicket() -> void:
 	)
 
 	var y: float = -180.0
-	while y < map_height + 180.0:
+	while y < _visual_bottom() + 180.0:
 		for side: int in [-1, 1]:
 			for col in columns:
 				var depth: float = path_half + 20.0 + float(col) * 64.0
@@ -166,8 +189,9 @@ func _build_path_details() -> void:
 	var placed: Array[Vector2] = []
 	var grass_bag: Array[int] = []
 	var y: float = 80.0
+	var visual_bottom := _visual_bottom()
 
-	while y < map_height - 60.0:
+	while y < visual_bottom - 60.0:
 		for _grass_i in GRASS_PER_SEGMENT:
 			var grass_y: float = y + rng.randf_range(-GRASS_Y_SPREAD, GRASS_Y_SPREAD)
 			var grass_pos := _find_free_position(
@@ -204,7 +228,7 @@ func _pick_grass_texture(
 	grass_bag: Array[int]
 ) -> Texture2D:
 	if grass_bag.is_empty():
-		for i in _grass_textures.size():
+		for i in range(_grass_textures.size()):
 			grass_bag.append(i)
 		_shuffle_array(rng, grass_bag)
 	return _grass_textures[grass_bag.pop_back()]
@@ -284,6 +308,11 @@ func _build_collisions() -> void:
 	right_shape.size = Vector2(wall_width, map_height)
 	_left_wall.position = Vector2(-(path_half + map_half_width) * 0.5, map_height * 0.5)
 	_right_wall.position = Vector2((path_half + map_half_width) * 0.5, map_height * 0.5)
+
+	var bottom_shape := _bottom_wall.shape as RectangleShape2D
+	var path_width := path_half * 2.0
+	bottom_shape.size = Vector2(path_width + 48.0, 56.0)
+	_bottom_wall.position = Vector2(0.0, map_height - 28.0)
 
 
 func _position_landmarks() -> void:
