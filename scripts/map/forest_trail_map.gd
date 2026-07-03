@@ -12,12 +12,13 @@ const TILE_WIDTH := 76.0
 @export var tree_row_spacing := 42.0
 @export var tree_columns_per_side := 8
 @export var path_detail_spacing := 95.0
+
+@export_group("Инструменты")
 @export var rebuild_map := false:
 	set(value):
 		rebuild_map = false
 		if value:
-			if has_meta("map_built"):
-				remove_meta("map_built")
+			remove_meta("map_built")
 			call_deferred("_build_map")
 
 @onready var _floor: Polygon2D = $Ground/ForestFloor
@@ -74,10 +75,9 @@ var _stump_textures: Array[Texture2D] = [
 
 
 func _ready() -> void:
-	if has_meta("map_built"):
+	if not _should_auto_build():
 		return
-	if _should_auto_build():
-		call_deferred("_build_map")
+	call_deferred("_build_map")
 
 
 func _should_auto_build() -> bool:
@@ -89,7 +89,7 @@ func _should_auto_build() -> bool:
 func _build_map() -> void:
 	if not is_inside_tree():
 		return
-	if _floor == null or _trees == null or _path_details == null or _bottom_wall == null:
+	if not _ensure_map_nodes():
 		return
 
 	_build_floor()
@@ -98,6 +98,24 @@ func _build_map() -> void:
 	_build_collisions()
 	_position_landmarks()
 	set_meta("map_built", true)
+
+
+func _ensure_map_nodes() -> bool:
+	if _floor == null:
+		_floor = get_node_or_null("Ground/ForestFloor") as Polygon2D
+		_trees = get_node_or_null("Decorations/Trees") as Node2D
+		_bushes = get_node_or_null("Decorations/Bushes") as Node2D
+		_path_details = get_node_or_null("Decorations/PathDetails") as Node2D
+		_left_wall = get_node_or_null("Collisions/LeftForestWall") as CollisionShape2D
+		_right_wall = get_node_or_null("Collisions/RightForestWall") as CollisionShape2D
+		_bottom_wall = get_node_or_null("Collisions/BottomBarrier") as CollisionShape2D
+
+	return (
+		_floor != null
+		and _trees != null
+		and _path_details != null
+		and _bottom_wall != null
+	)
 
 
 func _path_half_width() -> float:
@@ -268,14 +286,41 @@ func _is_position_free(pos: Vector2, placed: Array[Vector2]) -> bool:
 	return true
 
 
-func _create_path_prop(rng: RandomNumberGenerator) -> Sprite2D:
+func _create_big_bush(rng: RandomNumberGenerator) -> Node2D:
+	var texture: Texture2D = _bush_textures[rng.randi() % _bush_textures.size()]
+	var bush_root := Node2D.new()
+
+	var sprite := Sprite2D.new()
+	sprite.texture = texture
+	bush_root.add_child(sprite)
+
+	var big_bush := Area2D.new()
+	big_bush.name = &"BigBush"
+	big_bush.collision_layer = 2
+	big_bush.collision_mask = 0
+	big_bush.monitorable = true
+	big_bush.add_to_group("big_bush")
+	bush_root.add_child(big_bush)
+
+	var collision := CollisionShape2D.new()
+	collision.name = &"BigBush"
+	var rect := RectangleShape2D.new()
+	var bush_size := texture.get_size()
+	rect.size = bush_size * 1.35
+	collision.shape = rect
+	big_bush.add_child(collision)
+
+	return bush_root
+
+
+func _create_path_prop(rng: RandomNumberGenerator) -> Node2D:
 	var roll := rng.randf()
 	var sprite := Sprite2D.new()
 
 	# Трава размещается отдельным циклом; здесь только остальные объекты.
 	# Камни: 9% (вдвое меньше прежних 18%).
 	if roll < 0.47:
-		sprite.texture = _bush_textures[rng.randi() % _bush_textures.size()]
+		return _create_big_bush(rng)
 	elif roll < 0.56:
 		sprite.texture = _stone_textures[rng.randi() % _stone_textures.size()]
 	elif roll < 0.81:

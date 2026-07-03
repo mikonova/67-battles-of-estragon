@@ -1,12 +1,12 @@
 using Godot;
-using System;
 using System.Linq;
 
 public partial class playerhumanmovement : CharacterBody2D
 {
+	private static readonly StringName BigBushName = "BigBush";
+
 	private AnimatedSprite2D _animatedSprite;
-	private Area2D  _collisionChecker;
-	private Area2D _currentArea;
+	private Area2D _collisionChecker;
 	public const float Speed = 300.0f;
 	public int SpeedModifier = 1;
 	public enum SpeedModifierPredefined
@@ -16,55 +16,19 @@ public partial class playerhumanmovement : CharacterBody2D
 		Double
 	}
 	public bool IsHiding;
+
 	public override void _Ready()
 	{
+		AddToGroup("player");
 		_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		_collisionChecker = GetNode<Area2D>("PlayerCollisionChecker");
-		_collisionChecker.AreaEntered += OnAreaEntered;
-		_collisionChecker.AreaExited += OnAreaExited;
 	}
-	
-	private void OnAreaEntered(Area2D area)
-	{
-		_currentArea = area;
-	}
-	
-	private void OnAreaExited(Area2D area)
-	{
-		if (_currentArea == area)
-		{
-			_currentArea = null; 
-		}
-	}
-	
+
 	public override void _PhysicsProcess(double delta)
 	{
-		// Hiding
-		if (Input.IsActionJustPressed("interact") && _currentArea?.Name == "BigBush" && !IsHiding)
-		{
-			SpeedModifier = (int)SpeedModifierPredefined.Still;
-			IsHiding = true;
-			this.Visible = false;
-			foreach (CollisionShape2D collider in GetChildren().OfType<CollisionShape2D>())
-			{
-				collider.Disabled = true;
-			}
-			
-		}
-		else if  (Input.IsActionJustPressed("interact") && IsHiding)
-		{
-			SpeedModifier = (int)SpeedModifierPredefined.Default;
-			IsHiding = false;
-			this.Visible = true;
-			foreach (CollisionShape2D collider in GetChildren().OfType<CollisionShape2D>())
-			{
-				collider.Disabled = false;
-			}
-		}
-		
-		// Movement
 		Vector2 direction = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
 		Velocity = direction * Speed * SpeedModifier;
+
 		if (direction != Vector2.Zero)
 		{
 			_animatedSprite.Play("walk");
@@ -82,6 +46,52 @@ public partial class playerhumanmovement : CharacterBody2D
 		{
 			_animatedSprite.FlipH = true;
 		}
+
 		MoveAndSlide();
+
+		if (!Input.IsActionJustPressed("interact"))
+		{
+			return;
+		}
+
+		if (IsHiding)
+		{
+			StopHiding();
+			return;
+		}
+
+		if (IsInBigBush())
+		{
+			StartHiding();
+		}
+	}
+
+	private bool IsInBigBush()
+	{
+		foreach (Area2D area in _collisionChecker.GetOverlappingAreas())
+		{
+			if (area.Name == BigBushName || area.IsInGroup("big_bush"))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void StartHiding()
+	{
+		SpeedModifier = (int)SpeedModifierPredefined.Still;
+		IsHiding = true;
+		_animatedSprite.Visible = false;
+		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = true;
+	}
+
+	private void StopHiding()
+	{
+		SpeedModifier = (int)SpeedModifierPredefined.Default;
+		IsHiding = false;
+		_animatedSprite.Visible = true;
+		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = false;
 	}
 }

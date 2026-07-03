@@ -9,7 +9,7 @@ size = Vector2(1800, 6500)
 
 [node name="MainStage" type="Node2D" unique_id=246083452]
 
-[node name="ForestTrailMap" parent="." unique_id=1053670864 instance=ExtResource("3_map")]
+[node name="ForestTrailMap" parent="." unique_id=1315999169 instance=ExtResource("3_map")]
 
 [node name="WanderBounds" type="Area2D" parent="." unique_id=1982736451]
 position = Vector2(0, 3250)

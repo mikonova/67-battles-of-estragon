@@ -61,6 +61,10 @@ position = Vector2(0, -1)
 shape = SubResource("CapsuleShape2D_j8m2y")
 
 [node name="PlayerCollisionChecker" type="Area2D" parent="." unique_id=485232386]
+collision_layer = 0
+collision_mask = 2
+monitoring = true
+monitorable = false
 
 [node name="CheckerShape" type="CollisionShape2D" parent="PlayerCollisionChecker" unique_id=988692206]
 shape = SubResource("CircleShape2D_m33sw")
