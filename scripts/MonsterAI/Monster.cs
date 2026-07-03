@@ -49,6 +49,8 @@ public partial class Monster : CharacterBody2D
 	[Export] public NodePath WanderBoundsPath;
 	[Export] public float WanderWaitTime = 1.5f;
 	[Export] public float WanderEdgeMargin = 24f;
+	[Export] public float MapBottomMargin = 110f;
+	[Export] public float MapEdgeSafeDistance = 280f;
 
 	[ExportGroup("Sweep")]
 	[Export] public float SweepRadius = 300f;
@@ -162,17 +164,18 @@ public partial class Monster : CharacterBody2D
 
 	public void BeginEncounter(Vector2 center, MapSide entrySide)
 	{
-		_encounterCenter = center;
-		EntrySide = entrySide;
-		LeaveSide = GetOppositeSide(entrySide);
+		RefreshWanderAreaFromNode();
+		_encounterCenter = ClampToPlayableArea(center);
+		EntrySide = ResolveEntrySide(_encounterCenter, entrySide);
+		LeaveSide = ResolveLeaveSide(_encounterCenter, GetOppositeSide(EntrySide));
 		_encounterTimer = 0f;
 		_sweepWaypointTimer = 0f;
-		_sweepCheckPosition = center;
+		_sweepCheckPosition = _encounterCenter;
 		BuildSweepWaypoints();
 		_sweepIndex = 0;
 		_player = null;
 		_leaveTarget = GetLeavePositionFromCenter();
-		GlobalPosition = GetSpawnPositionNearCenter();
+		GlobalPosition = ClampToPlayableArea(GetSpawnPositionNearCenter());
 		SetEncounterActive();
 		SetState(State.Enter);
 	}
@@ -228,6 +231,11 @@ public partial class Monster : CharacterBody2D
 		}
 
 		LeaveSide = side ?? LeaveSide;
+		if (EncounterMode)
+		{
+			LeaveSide = ResolveLeaveSide(_encounterCenter, LeaveSide);
+		}
+
 		_leaveTarget = EncounterMode
 			? GetLeavePositionFromCenter()
 			: GetLeavePositionOutside();
@@ -350,13 +358,15 @@ public partial class Monster : CharacterBody2D
 		Node2D player = FindPlayerInVision();
 		if (player != null)
 		{
-			_encounterCenter = player.GlobalPosition;
+			_encounterCenter = ClampToPlayableArea(player.GlobalPosition);
 		}
 	}
 
 	private Vector2 GetSweepWaypoint(int index)
 	{
-		return AdjustTargetAwayFromCampfires(_encounterCenter + _sweepWaypointOffsets[index]);
+		return ClampToPlayableArea(
+			AdjustTargetAwayFromCampfires(_encounterCenter + _sweepWaypointOffsets[index])
+		);
 	}
 
 	private void ProcessWander(float delta)
@@ -497,7 +507,7 @@ public partial class Monster : CharacterBody2D
 	{
 		if (_state != State.Leave)
 		{
-			target = AdjustTargetAwayFromCampfires(target);
+			target = ClampToPlayableArea(AdjustTargetAwayFromCampfires(target));
 		}
 
 		Vector2 offset = target - GlobalPosition;
@@ -559,8 +569,9 @@ public partial class Monster : CharacterBody2D
 				float angle = (float)GD.RandRange(0f, Mathf.Tau);
 				float radius = (float)GD.RandRange(SweepRadius * 0.45f, SweepRadius);
 				offset = Vector2.FromAngle(angle) * radius;
+				Vector2 worldPos = _encounterCenter + offset;
 
-				if (!IsPositionInBurningCampfireZone(_encounterCenter + offset))
+				if (!IsPositionInBurningCampfireZone(worldPos) && IsInsidePlayableArea(worldPos))
 				{
 					break;
 				}
@@ -568,6 +579,71 @@ public partial class Monster : CharacterBody2D
 
 			_sweepWaypointOffsets.Add(offset);
 		}
+	}
+
+	private Rect2 GetPlayableRect()
+	{
+		Rect2 playable = GetInnerWanderRect();
+		playable.Size = new Vector2(playable.Size.X, Mathf.Max(1f, playable.Size.Y - MapBottomMargin));
+		return playable;
+	}
+
+	private Vector2 ClampToPlayableArea(Vector2 position)
+	{
+		Rect2 playable = GetPlayableRect();
+
+		return new Vector2(
+			Mathf.Clamp(position.X, playable.Position.X, playable.End.X),
+			Mathf.Clamp(position.Y, playable.Position.Y, playable.End.Y)
+		);
+	}
+
+	private bool IsInsidePlayableArea(Vector2 position)
+	{
+		Rect2 playable = GetPlayableRect();
+		return playable.HasPoint(position);
+	}
+
+	private bool IsNearBottomEdge(Vector2 position)
+	{
+		Rect2 playable = GetPlayableRect();
+		return position.Y >= playable.End.Y - MapEdgeSafeDistance;
+	}
+
+	private bool IsNearTopEdge(Vector2 position)
+	{
+		Rect2 playable = GetPlayableRect();
+		return position.Y <= playable.Position.Y + MapEdgeSafeDistance;
+	}
+
+	private MapSide ResolveEntrySide(Vector2 center, MapSide requested)
+	{
+		if (requested == MapSide.Bottom && IsNearBottomEdge(center))
+		{
+			return MapSide.Top;
+		}
+
+		if (requested == MapSide.Top && IsNearTopEdge(center))
+		{
+			return MapSide.Bottom;
+		}
+
+		return requested;
+	}
+
+	private MapSide ResolveLeaveSide(Vector2 center, MapSide requested)
+	{
+		if (requested == MapSide.Bottom && IsNearBottomEdge(center))
+		{
+			return MapSide.Top;
+		}
+
+		if (requested == MapSide.Top && IsNearTopEdge(center))
+		{
+			return MapSide.Bottom;
+		}
+
+		return requested;
 	}
 
 	private void PickWanderTarget()
@@ -738,7 +814,7 @@ public partial class Monster : CharacterBody2D
 			direction = -GetSideOffset(EntrySide, 1f).Normalized();
 		}
 
-		return _encounterCenter - direction * SweepRadius * 0.85f;
+		return ClampToPlayableArea(_encounterCenter - direction * SweepRadius * 0.85f);
 	}
 
 	private Vector2 GetLeavePositionFromCenter()
@@ -746,11 +822,13 @@ public partial class Monster : CharacterBody2D
 		Vector2 sideOffset = GetSideOffset(LeaveSide, EncounterLeaveDistance);
 		float jitter = (float)GD.RandRange(-100f, 100f);
 
-		return LeaveSide switch
+		Vector2 leavePos = LeaveSide switch
 		{
 			MapSide.Top or MapSide.Bottom => _encounterCenter + sideOffset + new Vector2(jitter, 0f),
 			_ => _encounterCenter + sideOffset + new Vector2(0f, jitter)
 		};
+
+		return leavePos;
 	}
 
 	private Vector2 GetLeavePositionOutside()
