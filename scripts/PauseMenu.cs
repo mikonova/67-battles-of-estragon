@@ -6,8 +6,14 @@ public partial class PauseMenu : Control
 	{
 		ProcessMode = ProcessModeEnum.Always;
 		Visible = false;
+		VisibilityChanged += OnVisibilityChanged;
 
 		GetNode<Button>("Panel/Mainmeny/Button").Pressed += HidePause;
+	}
+
+	private void OnVisibilityChanged()
+	{
+		GetTree().Paused = Visible;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -32,12 +38,10 @@ public partial class PauseMenu : Control
 	private void ShowPause()
 	{
 		Visible = true;
-		GetTree().Paused = true;
 	}
 
 	private void HidePause()
 	{
 		Visible = false;
-		GetTree().Paused = false;
 	}
 }

@@ -41,7 +41,9 @@ public partial class Monster : CharacterBody2D
 	[ExportGroup("Spawn")]
 	[Export] public MapSide EntrySide = MapSide.Top;
 	[Export] public float EntryOffset = 80f;
-	[Export] public float EncounterSpawnDistance = 580f;
+	[Export] public float EncounterSpawnDistance = 480f;
+	[Export] public float EncounterApproachDistance = 110f;
+	[Export] public float EnterTimeout = 4f;
 	[Export] public float EncounterLeaveDistance = 650f;
 
 	[ExportGroup("Wander")]
@@ -89,6 +91,7 @@ public partial class Monster : CharacterBody2D
 	private int _sweepIndex;
 	private float _encounterTimer;
 	private float _sweepWaypointTimer;
+	private float _enterTimer;
 	private Vector2 _sweepCheckPosition;
 
 	public State GetState() => _state;
@@ -164,12 +167,12 @@ public partial class Monster : CharacterBody2D
 
 	public void BeginEncounter(Vector2 center, MapSide entrySide)
 	{
-		RefreshWanderAreaFromNode();
 		_encounterCenter = ClampToPlayableArea(center);
 		EntrySide = ResolveEntrySide(_encounterCenter, entrySide);
 		LeaveSide = ResolveLeaveSide(_encounterCenter, GetOppositeSide(EntrySide));
 		_encounterTimer = 0f;
 		_sweepWaypointTimer = 0f;
+		_enterTimer = 0f;
 		_sweepCheckPosition = _encounterCenter;
 		BuildSweepWaypoints();
 		_sweepIndex = 0;
@@ -209,6 +212,11 @@ public partial class Monster : CharacterBody2D
 
 	public void SetWanderAreaFromNode(Area2D areaNode)
 	{
+		if (areaNode == null)
+		{
+			return;
+		}
+
 		WanderArea = GlobalRectFromArea2D(areaNode);
 		if (_state == State.Wander)
 		{
@@ -252,6 +260,12 @@ public partial class Monster : CharacterBody2D
 	private void SetEncounterActive()
 	{
 		Visible = true;
+		ZIndex = 6;
+		if (_sprite != null)
+		{
+			_sprite.ZIndex = 6;
+		}
+
 		SetProcess(true);
 		SetPhysicsProcess(true);
 	}
@@ -294,6 +308,7 @@ public partial class Monster : CharacterBody2D
 		if (EncounterMode)
 		{
 			UpdateEncounterCenter();
+			_enterTimer += (float)GetPhysicsProcessDeltaTime();
 
 			_player = FindPlayerInVision();
 			if (_player != null)
@@ -301,16 +316,24 @@ public partial class Monster : CharacterBody2D
 				SetState(State.Chase);
 				return;
 			}
+
+			Vector2 approachPoint = GetEncounterApproachPoint();
+			MoveToward(approachPoint, EnterSpeed);
+
+			if (GlobalPosition.DistanceTo(approachPoint) <= ArriveDistance || _enterTimer >= EnterTimeout)
+			{
+				SetState(State.Sweep);
+			}
+
+			return;
 		}
 
-		Vector2 entryPoint = EncounterMode
-			? GetEncounterEntryPoint()
-			: GetEntryPointOnMap();
+		Vector2 entryPoint = GetEntryPointOnMap();
 		MoveToward(entryPoint, EnterSpeed);
 
 		if (GlobalPosition.DistanceTo(entryPoint) <= ArriveDistance)
 		{
-			SetState(EncounterMode ? State.Sweep : State.Wander);
+			SetState(State.Wander);
 		}
 	}
 
@@ -529,6 +552,27 @@ public partial class Monster : CharacterBody2D
 
 			if (_state != State.Leave && IsPositionInBurningCampfireZone(nextPosition))
 			{
+				Vector2 detour = AdjustTargetAwayFromCampfires(GlobalPosition);
+				Vector2 detourOffset = detour - GlobalPosition;
+
+				if (detourOffset.Length() > 8f)
+				{
+					Velocity = detourOffset.Normalized() * speed;
+
+					if (RotateTowardMovement)
+					{
+						Rotation = Velocity.Angle();
+					}
+
+					if (!_isBiting)
+					{
+						PlayAnim("run");
+					}
+
+					MoveAndSlide();
+					return;
+				}
+
 				Velocity = Vector2.Zero;
 
 				if (!_isBiting)
@@ -584,6 +628,12 @@ public partial class Monster : CharacterBody2D
 	private Rect2 GetPlayableRect()
 	{
 		Rect2 playable = GetInnerWanderRect();
+
+		if (playable.Size.Y < 500f || playable.Size.X < 500f)
+		{
+			return new Rect2(-850f, 40f, 1700f, 6280f);
+		}
+
 		playable.Size = new Vector2(playable.Size.X, Mathf.Max(1f, playable.Size.Y - MapBottomMargin));
 		return playable;
 	}
@@ -739,12 +789,17 @@ public partial class Monster : CharacterBody2D
 
 	private void RefreshWanderAreaFromNode()
 	{
-		if (WanderBoundsPath.IsEmpty)
+		if (WanderBoundsPath == null || WanderBoundsPath.IsEmpty)
 		{
 			return;
 		}
 
 		Node node = GetNodeOrNull(WanderBoundsPath);
+		if (node == null)
+		{
+			node = GetNodeOrNull("../../WanderBounds");
+		}
+
 		if (node is Area2D area)
 		{
 			SetWanderAreaFromNode(area);
@@ -796,7 +851,8 @@ public partial class Monster : CharacterBody2D
 
 	private Vector2 GetSpawnPositionNearCenter()
 	{
-		Vector2 sideOffset = GetSideOffset(EntrySide, EncounterSpawnDistance);
+		float spawnDistance = GetViewportSpawnDistance();
+		Vector2 sideOffset = GetSideOffset(EntrySide, spawnDistance);
 		float jitter = (float)GD.RandRange(-120f, 120f);
 
 		return EntrySide switch
@@ -804,6 +860,23 @@ public partial class Monster : CharacterBody2D
 			MapSide.Top or MapSide.Bottom => _encounterCenter + sideOffset + new Vector2(jitter, 0f),
 			_ => _encounterCenter + sideOffset + new Vector2(0f, jitter)
 		};
+	}
+
+	private float GetViewportSpawnDistance()
+	{
+		Viewport viewport = GetViewport();
+		if (viewport == null)
+		{
+			return EncounterSpawnDistance;
+		}
+
+		float halfHeight = viewport.GetVisibleRect().Size.Y * 0.5f;
+		return Mathf.Min(EncounterSpawnDistance, halfHeight + 40f);
+	}
+
+	private Vector2 GetEncounterApproachPoint()
+	{
+		return ClampToPlayableArea(_encounterCenter + GetSideOffset(EntrySide, -EncounterApproachDistance));
 	}
 
 	private Vector2 GetEncounterEntryPoint()

@@ -152,9 +152,10 @@ public partial class MonsterEncounterController : Node
 		_activeMonster = MonsterScene.Instantiate<Monster>();
 		AddChild(_activeMonster);
 
-		if (!WanderBoundsPath.IsEmpty)
+		Area2D wanderBounds = GetNodeOrNull<Area2D>(WanderBoundsPath);
+		if (wanderBounds != null)
 		{
-			_activeMonster.WanderBoundsPath = WanderBoundsPath;
+			_activeMonster.SetWanderAreaFromNode(wanderBounds);
 		}
 
 		_activeMonster.SetKnownCampfires(_campfires);
