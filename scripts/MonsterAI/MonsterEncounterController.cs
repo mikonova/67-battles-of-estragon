@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class MonsterEncounterController : Node
 {
@@ -28,6 +29,7 @@ public partial class MonsterEncounterController : Node
 	private Timer _encounterTimer;
 	private bool _isFirstEncounter = true;
 	private bool _encounterInProgress;
+	private readonly List<Cumpfire> _campfires = new();
 
 	public override void _Ready()
 	{
@@ -37,6 +39,8 @@ public partial class MonsterEncounterController : Node
 			GD.PushError("MonsterEncounterController: не найден игрок по PlayerPath.");
 			return;
 		}
+
+		CacheCampfires();
 
 		if (MonsterScene == null)
 		{
@@ -153,6 +157,8 @@ public partial class MonsterEncounterController : Node
 			_activeMonster.WanderBoundsPath = WanderBoundsPath;
 		}
 
+		_activeMonster.SetKnownCampfires(_campfires);
+
 		var entrySide = (Monster.MapSide)(int)GD.RandRange(0, 3);
 		_activeMonster.BeginEncounter(_player.GlobalPosition, entrySide);
 		_activeMonster.LeftMap += OnMonsterLeftMap;
@@ -216,5 +222,44 @@ public partial class MonsterEncounterController : Node
 		}
 
 		_heartPlayer.Stop();
+	}
+
+	private void CacheCampfires()
+	{
+		_campfires.Clear();
+		Node sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+		{
+			return;
+		}
+
+		CollectCampfires(sceneRoot, _campfires);
+	}
+
+	private static void CollectCampfires(Node node, List<Cumpfire> campfires)
+	{
+		if (node is Cumpfire campfire)
+		{
+			campfires.Add(campfire);
+		}
+
+		foreach (Node child in node.GetChildren())
+		{
+			if (ShouldSkipCampfireSearch(child))
+			{
+				continue;
+			}
+
+			CollectCampfires(child, campfires);
+		}
+	}
+
+	private static bool ShouldSkipCampfireSearch(Node node)
+	{
+		return node.Name == "Decorations"
+			|| node.Name == "Trees"
+			|| node.Name == "Bushes"
+			|| node.Name == "PathDetails"
+			|| node.Name == "Clearings";
 	}
 }

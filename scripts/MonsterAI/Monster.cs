@@ -54,11 +54,14 @@ public partial class Monster : CharacterBody2D
 	[Export] public float SweepRadius = 300f;
 	[Export] public int SweepWaypointCount = 6;
 	[Export] public float NearbyDistance = 400f;
+	[Export] public float EncounterMaxDuration = 28f;
+	[Export] public float SweepWaypointTimeout = 2.5f;
 
 	[ExportGroup("Vision")]
 	[Export] public float VisionRange = 280f;
 	[Export] public float LosePlayerRange = 420f;
 	[Export] public StringName PlayerGroup = "player";
+	[Export] public float CampfireAvoidDistance = 170f;
 
 	[ExportGroup("Leave")]
 	[Export] public MapSide LeaveSide = MapSide.Right;
@@ -80,7 +83,11 @@ public partial class Monster : CharacterBody2D
 	private Vector2 _leaveTarget;
 	private Vector2 _encounterCenter;
 	private readonly List<Vector2> _sweepWaypointOffsets = new();
+	private readonly List<Cumpfire> _campfires = new();
 	private int _sweepIndex;
+	private float _encounterTimer;
+	private float _sweepWaypointTimer;
+	private Vector2 _sweepCheckPosition;
 
 	public State GetState() => _state;
 
@@ -122,6 +129,17 @@ public partial class Monster : CharacterBody2D
 			_biteTimer -= deltaF;
 		}
 
+		if (EncounterMode && _state != State.Leave && _encounterTimer >= EncounterMaxDuration)
+		{
+			StartLeaving();
+			return;
+		}
+
+		if (EncounterMode && _state != State.Leave)
+		{
+			_encounterTimer += deltaF;
+		}
+
 		switch (_state)
 		{
 			case State.Enter:
@@ -147,12 +165,34 @@ public partial class Monster : CharacterBody2D
 		_encounterCenter = center;
 		EntrySide = entrySide;
 		LeaveSide = GetOppositeSide(entrySide);
+		_encounterTimer = 0f;
+		_sweepWaypointTimer = 0f;
+		_sweepCheckPosition = center;
 		BuildSweepWaypoints();
 		_sweepIndex = 0;
+		_player = null;
 		_leaveTarget = GetLeavePositionFromCenter();
 		GlobalPosition = GetSpawnPositionNearCenter();
 		SetEncounterActive();
 		SetState(State.Enter);
+	}
+
+	public void SetKnownCampfires(IEnumerable<Cumpfire> campfires)
+	{
+		_campfires.Clear();
+
+		if (campfires == null)
+		{
+			return;
+		}
+
+		foreach (Cumpfire campfire in campfires)
+		{
+			if (GodotObject.IsInstanceValid(campfire))
+			{
+				_campfires.Add(campfire);
+			}
+		}
 	}
 
 	public void SetWanderArea(Rect2 area)
@@ -175,6 +215,13 @@ public partial class Monster : CharacterBody2D
 
 	public void StartLeaving(MapSide? side = null)
 	{
+		if (_state == State.Leave)
+		{
+			return;
+		}
+
+		_player = null;
+
 		if (EncounterMode)
 		{
 			UpdateEncounterCenter();
@@ -239,6 +286,13 @@ public partial class Monster : CharacterBody2D
 		if (EncounterMode)
 		{
 			UpdateEncounterCenter();
+
+			_player = FindPlayerInVision();
+			if (_player != null)
+			{
+				SetState(State.Chase);
+				return;
+			}
 		}
 
 		Vector2 entryPoint = EncounterMode
@@ -256,6 +310,14 @@ public partial class Monster : CharacterBody2D
 	{
 		UpdateEncounterCenter();
 
+		_player = FindPlayerInVision();
+		if (_player != null)
+		{
+			_sweepWaypointTimer = 0f;
+			SetState(State.Chase);
+			return;
+		}
+
 		if (_sweepWaypointOffsets.Count == 0)
 		{
 			StartLeaving();
@@ -265,9 +327,17 @@ public partial class Monster : CharacterBody2D
 		Vector2 target = GetSweepWaypoint(_sweepIndex);
 		MoveToward(target, SweepSpeed);
 
-		if (GlobalPosition.DistanceTo(target) <= ArriveDistance)
+		_sweepWaypointTimer += (float)GetPhysicsProcessDeltaTime();
+		bool arrived = GlobalPosition.DistanceTo(target) <= ArriveDistance;
+		bool stalled = _sweepWaypointTimer >= SweepWaypointTimeout
+			&& GlobalPosition.DistanceTo(_sweepCheckPosition) < 20f;
+
+		if (arrived || stalled)
 		{
 			_sweepIndex++;
+			_sweepWaypointTimer = 0f;
+			_sweepCheckPosition = GlobalPosition;
+
 			if (_sweepIndex >= _sweepWaypointOffsets.Count)
 			{
 				StartLeaving();
@@ -277,29 +347,16 @@ public partial class Monster : CharacterBody2D
 
 	private void UpdateEncounterCenter()
 	{
-		Node2D player = GetEncounterPlayer();
+		Node2D player = FindPlayerInVision();
 		if (player != null)
 		{
 			_encounterCenter = player.GlobalPosition;
 		}
 	}
 
-	private Node2D GetEncounterPlayer()
-	{
-		foreach (Node node in GetTree().GetNodesInGroup(PlayerGroup))
-		{
-			if (node is Node2D player)
-			{
-				return player;
-			}
-		}
-
-		return null;
-	}
-
 	private Vector2 GetSweepWaypoint(int index)
 	{
-		return _encounterCenter + _sweepWaypointOffsets[index];
+		return AdjustTargetAwayFromCampfires(_encounterCenter + _sweepWaypointOffsets[index]);
 	}
 
 	private void ProcessWander(float delta)
@@ -333,7 +390,14 @@ public partial class Monster : CharacterBody2D
 
 		if (_player == null)
 		{
-			SetState(State.Wander);
+			SetState(GetIdleStateAfterChase());
+			return;
+		}
+
+		if (IsPositionInBurningCampfireZone(_player.GlobalPosition))
+		{
+			_player = null;
+			SetState(GetIdleStateAfterChase());
 			return;
 		}
 
@@ -342,7 +406,7 @@ public partial class Monster : CharacterBody2D
 		if (distance > LosePlayerRange)
 		{
 			_player = null;
-			SetState(State.Wander);
+			SetState(GetIdleStateAfterChase());
 			return;
 		}
 
@@ -352,7 +416,22 @@ public partial class Monster : CharacterBody2D
 			return;
 		}
 
-		MoveToward(_player.GlobalPosition, ChaseSpeed);
+		Vector2 chaseTarget = _player.GlobalPosition;
+		if (IsPositionInBurningCampfireZone(chaseTarget)
+			|| IsPositionInBurningCampfireZone(AdjustTargetAwayFromCampfires(chaseTarget)))
+		{
+			Velocity = Vector2.Zero;
+			MoveAndSlide();
+			PlayAnim("idle");
+			return;
+		}
+
+		MoveToward(chaseTarget, ChaseSpeed);
+	}
+
+	private State GetIdleStateAfterChase()
+	{
+		return EncounterMode ? State.Sweep : State.Wander;
 	}
 
 	private void Bite()
@@ -375,7 +454,8 @@ public partial class Monster : CharacterBody2D
 	{
 		MoveTowardGhost(_leaveTarget, LeaveSpeed);
 
-		if (GlobalPosition.DistanceTo(_leaveTarget) <= ArriveDistance)
+		float distance = GlobalPosition.DistanceTo(_leaveTarget);
+		if (distance <= ArriveDistance || distance <= LeaveSpeed * (float)GetPhysicsProcessDeltaTime() * 2f)
 		{
 			EmitSignal(SignalName.LeftMap);
 			QueueFree();
@@ -415,6 +495,11 @@ public partial class Monster : CharacterBody2D
 
 	private void MoveToward(Vector2 target, float speed)
 	{
+		if (_state != State.Leave)
+		{
+			target = AdjustTargetAwayFromCampfires(target);
+		}
+
 		Vector2 offset = target - GlobalPosition;
 
 		if (offset.Length() <= ArriveDistance)
@@ -428,11 +513,28 @@ public partial class Monster : CharacterBody2D
 		}
 		else
 		{
-			Velocity = offset.Normalized() * speed;
+			Vector2 direction = offset.Normalized();
+			float step = speed * (float)GetPhysicsProcessDeltaTime();
+			Vector2 nextPosition = GlobalPosition + direction * Mathf.Min(step, offset.Length());
+
+			if (_state != State.Leave && IsPositionInBurningCampfireZone(nextPosition))
+			{
+				Velocity = Vector2.Zero;
+
+				if (!_isBiting)
+				{
+					PlayAnim("idle");
+				}
+
+				MoveAndSlide();
+				return;
+			}
+
+			Velocity = direction * speed;
 
 			if (RotateTowardMovement)
 			{
-				Rotation = offset.Angle();
+				Rotation = direction.Angle();
 			}
 
 			if (!_isBiting)
@@ -450,9 +552,21 @@ public partial class Monster : CharacterBody2D
 
 		for (int i = 0; i < SweepWaypointCount; i++)
 		{
-			float angle = (float)GD.RandRange(0f, Mathf.Tau);
-			float radius = (float)GD.RandRange(SweepRadius * 0.45f, SweepRadius);
-			_sweepWaypointOffsets.Add(Vector2.FromAngle(angle) * radius);
+			Vector2 offset = Vector2.Zero;
+
+			for (int attempt = 0; attempt < 12; attempt++)
+			{
+				float angle = (float)GD.RandRange(0f, Mathf.Tau);
+				float radius = (float)GD.RandRange(SweepRadius * 0.45f, SweepRadius);
+				offset = Vector2.FromAngle(angle) * radius;
+
+				if (!IsPositionInBurningCampfireZone(_encounterCenter + offset))
+				{
+					break;
+				}
+			}
+
+			_sweepWaypointOffsets.Add(offset);
 		}
 	}
 
@@ -465,9 +579,14 @@ public partial class Monster : CharacterBody2D
 		);
 	}
 
-	private static bool IsPlayerVisible(Node2D player)
+	private bool IsPlayerVisible(Node2D player)
 	{
-		return player is not playerhumanmovement human || !human.IsHiding;
+		if (player is playerhumanmovement human && human.IsHiding)
+		{
+			return false;
+		}
+
+		return !IsPositionInBurningCampfireZone(player.GlobalPosition);
 	}
 
 	private Node2D FindPlayerInVision()
@@ -489,6 +608,57 @@ public partial class Monster : CharacterBody2D
 		}
 
 		return closest;
+	}
+
+	private Vector2 AdjustTargetAwayFromCampfires(Vector2 target)
+	{
+		Vector2 adjusted = target;
+
+		foreach (Cumpfire campfire in _campfires)
+		{
+			if (!IsBurningCampfire(campfire))
+			{
+				continue;
+			}
+
+			Vector2 campfirePos = campfire.GlobalPosition;
+			Vector2 offset = adjusted - campfirePos;
+			float distance = offset.Length();
+
+			if (distance >= CampfireAvoidDistance)
+			{
+				continue;
+			}
+
+			adjusted = distance <= 0.01f
+				? campfirePos + Vector2.Right * CampfireAvoidDistance
+				: campfirePos + offset.Normalized() * CampfireAvoidDistance;
+		}
+
+		return adjusted;
+	}
+
+	private bool IsPositionInBurningCampfireZone(Vector2 position)
+	{
+		foreach (Cumpfire campfire in _campfires)
+		{
+			if (!IsBurningCampfire(campfire))
+			{
+				continue;
+			}
+
+			if (position.DistanceTo(campfire.GlobalPosition) < CampfireAvoidDistance)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static bool IsBurningCampfire(Cumpfire campfire)
+	{
+		return GodotObject.IsInstanceValid(campfire) && campfire.fire;
 	}
 
 	private void RefreshWanderAreaFromNode()

@@ -7,6 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://c002y0a0a68lv" path="res://sounds/skitz.ogg" id="6_skitz"]
 [ext_resource type="AudioStream" uid="uid://ug41sup860md" path="res://sounds/heart.ogg" id="7_heart"]
 [ext_resource type="AudioStream" uid="uid://cos48dxu4rhaw" path="res://sounds/anxious_1.ogg" id="8_music"]
+[ext_resource type="PackedScene" uid="uid://dqsiknar6s7ox" path="res://scenes/cumpfire.tscn" id="8_ntda0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
@@ -32,3 +33,6 @@ WanderBoundsPath = NodePath("../WanderBounds")
 SkitzSound = ExtResource("6_skitz")
 HeartSound = ExtResource("7_heart")
 BackgroundMusic = ExtResource("8_music")
+
+[node name="Cumpfire" parent="." unique_id=1821674515 instance=ExtResource("8_ntda0")]
+position = Vector2(-10, 5903)
