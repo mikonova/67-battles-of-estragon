@@ -3,6 +3,17 @@ using System;
 
 public partial class Item : Node2D
 {
+	private Texture2D _itemTexture;
+	[Export]
+	public Texture2D ItemTexture
+	{
+		get => _itemTexture;
+		set
+		{
+			_itemTexture = value;
+			UpdateSprite();
+		}
+	}
 	private bool _playerInside = false;
 	private Node _player;
 
@@ -52,5 +63,15 @@ public partial class Item : Node2D
 	{
 		GD.Print("Предмет подобран");
 		QueueFree();
+	}
+	
+	private void UpdateSprite()
+	{
+		Sprite2D sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+
+		if (sprite != null)
+		{
+			sprite.Texture = _itemTexture;
+		}
 	}
 }
