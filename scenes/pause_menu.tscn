@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://c5o8yxhwb2ut"]
+
+[ext_resource type="Texture2D" uid="uid://8c2di21lkca2" path="res://art/PauseMenu/pause menu.png" id="1_n87rw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_myx47"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kukqi"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5d2l8"]
+bg_color = Color(0.6, 0.6, 0.6, 0.09411765)
+
+[node name="PauseMenu" type="Control" unique_id=153765243]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="." unique_id=995184650]
+layout_mode = 0
+offset_right = 1917.0
+offset_bottom = 1093.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_myx47")
+
+[node name="Mainmeny" type="Sprite2D" parent="Panel" unique_id=385562004]
+position = Vector2(956.6702, 541.00006)
+scale = Vector2(0.96434957, 0.96434945)
+texture = ExtResource("1_n87rw")
+
+[node name="Button" type="Button" parent="Panel/Mainmeny" unique_id=371910745]
+offset_left = -222.60623
+offset_top = -136.87991
+offset_right = 225.3641
+offset_bottom = -49.774567
+theme_override_styles/normal = SubResource("StyleBoxFlat_kukqi")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5d2l8")
+
+[node name="Button2" type="Button" parent="Panel/Mainmeny" unique_id=311313859]
+offset_left = -210.16263
+offset_top = -17.62857
+offset_right = 210.84653
+offset_bottom = 69.476776
+theme_override_styles/normal = SubResource("StyleBoxFlat_kukqi")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5d2l8")
+
+[node name="Button3" type="Button" parent="Panel/Mainmeny" unique_id=1480850560]
+offset_left = -210.16263
+offset_top = 101.62283
+offset_right = 210.84653
+offset_bottom = 188.72818
+theme_override_styles/normal = SubResource("StyleBoxFlat_kukqi")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5d2l8")
