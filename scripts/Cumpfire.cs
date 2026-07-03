@@ -35,7 +35,7 @@ public partial class Cumpfire : Node2D
 	}
 	private void OnBodyEntered(Node body)
 	{
-		if (body is MonsterPlayer)
+		if (body is playerhumanmovement)
 		{
 			_playerInside = true;
 		}
@@ -43,7 +43,7 @@ public partial class Cumpfire : Node2D
 
 	private void OnBodyExited(Node body)
 	{
-		if (body is MonsterPlayer)
+		if (body is playerhumanmovement)
 		{
 			_playerInside = false;
 		}

@@ -28,9 +28,9 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("5_ei7v0")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"bite",
-"speed": 1.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -83,4 +83,6 @@ shape = SubResource("RectangleShape2D_monster")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=945008366]
 sprite_frames = SubResource("SpriteFrames_70tfl")
-animation = &"idle"
+animation = &"bite"
+frame = 3
+frame_progress = 1.0
