@@ -4,10 +4,17 @@ using System;
 public partial class MonsterPlayer : CharacterBody2D
 {
 	public const float Speed = 350.0f;
-public const float StopDistance = 8.0f;
+	public const float StopDistance = 8.0f;
 
-public const float Acceleration = 520.0f; // меньше = больше инерции при повороте
-public const float Friction = 35.0f;      // меньше = дольше скользит
+	public const float Acceleration = 520.0f; // меньше = больше инерции при повороте
+	public const float Friction = 35.0f;      // меньше = дольше скользит
+	
+	private AnimatedSprite2D _animatedSprite;
+
+public override void _Ready()
+{
+	_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+}
 
 public override void _PhysicsProcess(double delta)
 {
@@ -30,6 +37,18 @@ public override void _PhysicsProcess(double delta)
 	}
 
 	LookAt(mousePosition);
+	
+	if (Velocity.Length() > 10.0f)
+	{
+		if (_animatedSprite.Animation != "run")
+			_animatedSprite.Play("run");
+	}
+	else
+	{
+		if (_animatedSprite.Animation != "idle")
+			_animatedSprite.Play("idle");
+	}
+	
 	MoveAndSlide();
 }
 }
