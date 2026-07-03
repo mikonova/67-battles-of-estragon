@@ -3,6 +3,7 @@ using System;
 
 public partial class Item : Node2D
 {
+	
 	private Texture2D _itemTexture;
 	[Export]
 	public Texture2D ItemTexture
@@ -25,6 +26,7 @@ public partial class Item : Node2D
 		_label.Text = "E";
 		_label.Visible = false;
 
+		
 		Area2D pickupArea = GetNode<Area2D>("PickupArea");
 
 		pickupArea.BodyEntered += OnBodyEntered;
