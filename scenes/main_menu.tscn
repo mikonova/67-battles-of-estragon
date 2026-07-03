@@ -40,6 +40,22 @@ offset_bottom = -15.554596
 theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
 
+[node name="Button2" type="Button" parent="Panel/Mainmeny" unique_id=328290008]
+offset_left = -538.8816
+offset_top = 1.0
+offset_right = -154.16635
+offset_bottom = 92.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
+
+[node name="Button3" type="Button" parent="Panel/Mainmeny" unique_id=328290010]
+offset_left = -538.8816
+offset_top = 104.0
+offset_right = -154.16635
+offset_bottom = 195.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
+
 [node name="Button4" type="Button" parent="Panel/Mainmeny" unique_id=328290009]
 offset_left = -538.8816
 offset_top = 197.0239
@@ -48,16 +64,123 @@ offset_bottom = 288.27713
 theme_override_styles/normal = SubResource("StyleBoxFlat_mti6b")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_mm1bc")
 
-[node name="Panel" type="Panel" parent="Panel" unique_id=490685933]
-layout_mode = 0
-offset_left = 437.0
-offset_top = 542.0
-offset_right = 808.0
-offset_bottom = 631.0
+[node name="OptionsOverlay" type="Control" parent="." unique_id=490685934]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Panel2" type="Panel" parent="Panel" unique_id=914021632]
-layout_mode = 0
-offset_left = 437.0
-offset_top = 641.0
-offset_right = 808.0
-offset_bottom = 730.0
+[node name="Panel" type="Panel" parent="OptionsOverlay" unique_id=490685935]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_4kxuq")
+
+[node name="MarginContainer" type="MarginContainer" parent="OptionsOverlay/Panel" unique_id=490685936]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -160.0
+offset_right = 260.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="OptionsOverlay/Panel/MarginContainer" unique_id=490685937]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="OptionsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=490685938]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "OPTIONS"
+horizontal_alignment = 1
+
+[node name="VolumeLabel" type="Label" parent="OptionsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=490685939]
+layout_mode = 2
+text = "Master Volume"
+
+[node name="VolumeSlider" type="HSlider" parent="OptionsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=490685940]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="BackButton" type="Button" parent="OptionsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=490685941]
+layout_mode = 2
+text = "BACK"
+
+[node name="CreditsOverlay" type="Control" parent="." unique_id=914021633]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CreditsOverlay" unique_id=914021634]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_4kxuq")
+
+[node name="MarginContainer" type="MarginContainer" parent="CreditsOverlay/Panel" unique_id=914021635]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -220.0
+offset_right = 320.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CreditsOverlay/Panel/MarginContainer" unique_id=914021636]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="CreditsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=914021637]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "CREDITS"
+horizontal_alignment = 1
+
+[node name="CreditsText" type="Label" parent="CreditsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=914021638]
+layout_mode = 2
+text = "Two Sides
+
+Game by Goddot Games
+Art, code, and design
+
+1986"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BackButton" type="Button" parent="CreditsOverlay/Panel/MarginContainer/VBoxContainer" unique_id=914021639]
+layout_mode = 2
+text = "BACK"

@@ -9,6 +9,8 @@ public partial class PauseMenu : Control
 		VisibilityChanged += OnVisibilityChanged;
 
 		GetNode<Button>("Panel/Mainmeny/Button").Pressed += HidePause;
+		GetNode<Button>("Panel/Mainmeny/Button2").Pressed += OnMainMenuPressed;
+		GetNode<Button>("Panel/Mainmeny/Button3").Pressed += OnExitPressed;
 	}
 
 	private void OnVisibilityChanged()
@@ -19,6 +21,11 @@ public partial class PauseMenu : Control
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (!@event.IsActionPressed("ui_cancel"))
+		{
+			return;
+		}
+
+		if (IsDeadMenuOpen())
 		{
 			return;
 		}
@@ -35,6 +42,12 @@ public partial class PauseMenu : Control
 		GetViewport().SetInputAsHandled();
 	}
 
+	private bool IsDeadMenuOpen()
+	{
+		DeadMenu deadMenu = GetParent().GetNodeOrNull<DeadMenu>("DeadMenu");
+		return deadMenu != null && deadMenu.Visible;
+	}
+
 	private void ShowPause()
 	{
 		Visible = true;
@@ -43,5 +56,16 @@ public partial class PauseMenu : Control
 	private void HidePause()
 	{
 		Visible = false;
+	}
+
+	private void OnMainMenuPressed()
+	{
+		GetTree().Paused = false;
+		GetTree().ChangeSceneToFile("res://scenes/main_menu.tscn");
+	}
+
+	private void OnExitPressed()
+	{
+		GetTree().Quit();
 	}
 }

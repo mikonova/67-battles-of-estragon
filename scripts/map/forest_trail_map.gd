@@ -362,17 +362,18 @@ func _build_collisions() -> void:
 
 func _position_landmarks() -> void:
 	var house_y := 150.0
-	var campfire_4_y := map_height * 0.17
-	var campfire_3_y := map_height * 0.34
-	var campfire_2_y := map_height * 0.51
-	var campfire_1_y := map_height * 0.68
 	var start_y := map_height - 280.0
+	var campfire_count := 6
+	var campfire_bottom := start_y - 120.0
+	var campfire_top := house_y + 250.0
+	var campfire_spacing := (campfire_bottom - campfire_top) / float(campfire_count - 1)
 
 	$Landmarks/House.position.y = house_y
-	$Landmarks/Campfire4.position.y = campfire_4_y
-	$Landmarks/Campfire3.position.y = campfire_3_y
-	$Landmarks/Campfire2.position.y = campfire_2_y
-	$Landmarks/Campfire1.position.y = campfire_1_y
+	if $Landmarks.has_node("HouseGoal"):
+		$Landmarks/HouseGoal.position.y = house_y + 130.0
+	var campfires := $Landmarks/Campfires
+	for i in campfire_count:
+		campfires.get_child(i).position = Vector2(0.0, campfire_bottom - i * campfire_spacing)
 	$Landmarks/Start.position.y = start_y
 	$Landmarks/StartArea.position.y = start_y
 	$Collisions/HouseBlock.position.y = house_y + 10.0

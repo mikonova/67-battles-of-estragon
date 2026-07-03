@@ -7,8 +7,9 @@
 [ext_resource type="AudioStream" uid="uid://c002y0a0a68lv" path="res://sounds/skitz.ogg" id="6_skitz"]
 [ext_resource type="AudioStream" uid="uid://ug41sup860md" path="res://sounds/heart.ogg" id="7_heart"]
 [ext_resource type="AudioStream" uid="uid://cos48dxu4rhaw" path="res://sounds/anxious_1.ogg" id="8_music"]
-[ext_resource type="PackedScene" uid="uid://dqsiknar6s7ox" path="res://scenes/cumpfire.tscn" id="8_ntda0"]
 [ext_resource type="PackedScene" uid="uid://c5o8yxhwb2ut" path="res://scenes/pause_menu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" uid="uid://dns6wkkx6rawq" path="res://scenes/deadmenu.tscn" id="10_deadmenu"]
+[ext_resource type="Script" path="res://scripts/GameTimer.cs" id="11_gametimer"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
@@ -35,9 +36,36 @@ SkitzSound = ExtResource("6_skitz")
 HeartSound = ExtResource("7_heart")
 BackgroundMusic = ExtResource("8_music")
 
-[node name="Cumpfire" parent="." unique_id=1821674515 instance=ExtResource("8_ntda0")]
-position = Vector2(-10, 5903)
-
 [node name="UI" type="CanvasLayer" parent="."]
 
+[node name="GameTimer" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 72.0
+grow_horizontal = 0
+script = ExtResource("11_gametimer")
+
+[node name="TimerLabel" type="Label" parent="UI/GameTimer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 36
+text = "05:00"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="PauseMenu" parent="UI" instance=ExtResource("9_pause")]
+
+[node name="DeadMenu" parent="UI" instance=ExtResource("10_deadmenu")]
