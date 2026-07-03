@@ -6,49 +6,127 @@ public partial class MonsterPlayer : CharacterBody2D
 	public const float Speed = 350.0f;
 	public const float StopDistance = 8.0f;
 
-	public const float Acceleration = 520.0f; // меньше = больше инерции при повороте
-	public const float Friction = 35.0f;      // меньше = дольше скользит
-	
+	public const float Acceleration = 520.0f;
+	public const float Friction = 35.0f;
+
+	public const float DashSpeed = 850.0f;
+	public const float DashTime = 0.15f;
+
 	private AnimatedSprite2D _animatedSprite;
 
-public override void _Ready()
-{
-	_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
-}
+	private bool _isDashing = false;
+	private float _dashTimer = 0f;
+	private Vector2 _dashDirection = Vector2.Zero;
 
-public override void _PhysicsProcess(double delta)
-{
-	float deltaF = (float)delta;
-
-	Vector2 mousePosition = GetGlobalMousePosition();
-	Vector2 direction = mousePosition - GlobalPosition;
-
-	if (direction.Length() > StopDistance)
+	public override void _Ready()
 	{
-		Vector2 targetVelocity = direction.Normalized() * Speed;
+		_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 
-		// Плавно меняет скорость, поэтому есть инерция
-		Velocity = Velocity.MoveToward(targetVelocity, Acceleration * deltaF);
-	}
-	else
-	{
-		// Не останавливается моментально, а чуть скользит
-		Velocity = Velocity.MoveToward(Vector2.Zero, Friction * deltaF);
+		if (_animatedSprite != null)
+		{
+			_animatedSprite.AnimationFinished += OnAnimationFinished;
+			PlayAnim("idle");
+		}
 	}
 
-	//LookAt(mousePosition);
-	
-	if (Velocity.Length() > 10.0f)
+	public override void _PhysicsProcess(double delta)
 	{
-		if (_animatedSprite.Animation != "run")
-			_animatedSprite.Play("run");
+		float deltaF = (float)delta;
+
+		Vector2 mousePosition = GetGlobalMousePosition();
+
+		if (Input.IsActionJustPressed("ui_accept") && !_isDashing)
+		{
+			StartDash(mousePosition);
+		}
+
+		if (_isDashing)
+		{
+			_dashTimer -= deltaF;
+			Velocity = _dashDirection * DashSpeed;
+
+			if (_dashTimer <= 0f)
+			{
+				_isDashing = false;
+			}
+
+			MoveAndSlide();
+			return;
+		}
+
+		Vector2 direction = mousePosition - GlobalPosition;
+
+		if (mousePosition.X < GlobalPosition.X)
+		{
+			_animatedSprite.FlipH = true;
+		}
+		else
+		{
+			_animatedSprite.FlipH = false;
+		}
+		if (direction.Length() > StopDistance)
+		{
+			Vector2 targetVelocity = direction.Normalized() * Speed;
+			Velocity = Velocity.MoveToward(targetVelocity, Acceleration * deltaF);
+		}
+		else
+		{
+			Velocity = Velocity.MoveToward(Vector2.Zero, Friction * deltaF);
+		}
+
+		UpdateMoveAnimation();
+
+		MoveAndSlide();
 	}
-	else
+
+	private void StartDash(Vector2 mousePosition)
 	{
-		if (_animatedSprite.Animation != "idle")
-			_animatedSprite.Play("idle");
+		Vector2 direction = mousePosition - GlobalPosition;
+
+		if (direction.Length() <= 1f)
+			return;
+
+		_isDashing = true;
+		_dashTimer = DashTime;
+		_dashDirection = direction.Normalized();
+
+		PlayAnim("dash");
 	}
-	
-	MoveAndSlide();
-}
+
+	private void UpdateMoveAnimation()
+	{
+		if (Velocity.Length() > 10.0f)
+		{
+			PlayAnim("run");
+		}
+		else
+		{
+			PlayAnim("idle");
+		}
+	}
+
+	private void PlayAnim(string animName)
+	{
+		if (_animatedSprite == null)
+			return;
+
+		if (_animatedSprite.SpriteFrames == null)
+			return;
+
+		if (!_animatedSprite.SpriteFrames.HasAnimation(animName))
+			return;
+
+		if (_animatedSprite.Animation == animName && _animatedSprite.IsPlaying())
+			return;
+
+		_animatedSprite.Play(animName);
+	}
+
+	private void OnAnimationFinished()
+	{
+		if (_animatedSprite.Animation == "dash")
+		{
+			_isDashing = false;
+		}
+	}
 }

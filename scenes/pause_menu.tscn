@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c5o8yxhwb2ut"]
 
 [ext_resource type="Texture2D" uid="uid://8c2di21lkca2" path="res://art/PauseMenu/pause menu.png" id="1_n87rw"]
+[ext_resource type="Script" path="res://scripts/PauseMenu.cs" id="2_pausemenu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_myx47"]
 bg_color = Color(0, 0, 0, 1)
@@ -12,12 +13,15 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 bg_color = Color(0.6, 0.6, 0.6, 0.09411765)
 
 [node name="PauseMenu" type="Control" unique_id=153765243]
+visible = false
+process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2_pausemenu")
 
 [node name="Panel" type="Panel" parent="." unique_id=995184650]
 layout_mode = 0
