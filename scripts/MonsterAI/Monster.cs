@@ -108,6 +108,7 @@ public partial class Monster : CharacterBody2D
 
 	public override void _Ready()
 	{
+		AddToGroup("monster");
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		_collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
 		_sprite.AnimationFinished += OnAnimationFinished;
@@ -480,6 +481,12 @@ public partial class Monster : CharacterBody2D
 		_isBiting = true;
 		_biteTimer = BiteCooldown;
 		PlayAnim("bite");
+
+		if (_player is playerhumanmovement human)
+		{
+			human.AddFearFromMonsterHit();
+		}
+
 		GD.Print("Монстр кусает игрока");
 	}
 

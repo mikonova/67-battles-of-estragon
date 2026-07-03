@@ -4,6 +4,7 @@ public partial class DeadMenu : Control
 {
 	public override void _Ready()
 	{
+		AddToGroup("dead_menu");
 		ProcessMode = ProcessModeEnum.Always;
 		Visible = false;
 		VisibilityChanged += OnVisibilityChanged;

@@ -26,6 +26,7 @@ shape = SubResource("RectangleShape2D_wander")
 
 [node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
 position = Vector2(0, 6220)
+DeadMenuPath = NodePath("../UI/DeadMenu")
 
 [node name="MonsterEncounterController" type="Node" parent="." unique_id=1751531850]
 script = ExtResource("4_encounter")

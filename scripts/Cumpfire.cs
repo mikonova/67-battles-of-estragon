@@ -12,7 +12,8 @@ public partial class Cumpfire : Node2D
 	
 	public override void _Ready()
 {
-	_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		AddToGroup("campfire");
+		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 	_timer = GetNode<Timer>("Timer");
 
 	Area2D actArea = GetNode<Area2D>("act_area");

@@ -45,16 +45,36 @@ height = 50.0
 radius = 43.046486
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_2fovf"]
-radius = 36.878178
+radius = 280.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fear_bg"]
+bg_color = Color(0, 0, 0, 0.45)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fear_fill"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758]
 script = ExtResource("1_sce46")
 
-[node name="FearBar" type="ProgressBar" parent="." unique_id=1111738017]
-offset_left = -941.0
-offset_top = -522.0
-offset_right = -674.0
-offset_bottom = -438.0
+[node name="FearHud" type="CanvasLayer" parent="."]
+
+[node name="FearBar" type="ProgressBar" parent="FearHud" unique_id=1111738017]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 241.0
+offset_bottom = 62.0
+theme_override_styles/background = SubResource("StyleBoxFlat_fear_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fear_fill")
+max_value = 100.0
+show_percentage = false
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
 script = ExtResource("3_0xl5a")
@@ -78,6 +98,9 @@ monitorable = false
 shape = SubResource("CircleShape2D_m33sw")
 
 [node name="FearCollisionChecker" type="Area2D" parent="." unique_id=1944672833]
+collision_layer = 0
+collision_mask = 1
+monitorable = false
 
 [node name="FearCheckerShape" type="CollisionShape2D" parent="FearCollisionChecker" unique_id=1679192725]
 shape = SubResource("CircleShape2D_2fovf")
