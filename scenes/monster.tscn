@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://bx7m4n2k8wq1p"]
+[gd_scene format=3 uid="uid://bx7m4n2k8wq1p"]
 
 [ext_resource type="Script" uid="uid://ditc4kpe0b7uo" path="res://scripts/MonsterAI/Monster.cs" id="1_monster"]
 [ext_resource type="Texture2D" uid="uid://dynusr6ipi2ni" path="res://art/Monster/mn1.png" id="2_texture"]

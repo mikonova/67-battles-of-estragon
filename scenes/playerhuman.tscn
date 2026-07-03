@@ -41,7 +41,10 @@ animations = [{
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_j8m2y"]
 height = 50.0
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758 groups=["player"]]
+[sub_resource type="CircleShape2D" id="CircleShape2D_m33sw"]
+radius = 43.046486
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758]
 script = ExtResource("1_sce46")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
@@ -53,5 +56,11 @@ sprite_frames = SubResource("SpriteFrames_m33sw")
 animation = &"walk"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1550340214]
+visible = false
 position = Vector2(0, -1)
 shape = SubResource("CapsuleShape2D_j8m2y")
+
+[node name="PlayerCollisionChecker" type="Area2D" parent="." unique_id=485232386]
+
+[node name="CheckerShape" type="CollisionShape2D" parent="PlayerCollisionChecker" unique_id=988692206]
+shape = SubResource("CircleShape2D_m33sw")
