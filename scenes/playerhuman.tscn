@@ -1,18 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://b2dgaynigvlj2"]
+[gd_scene format=3 uid="uid://b2dgaynigvlj2"]
 
 [ext_resource type="Script" uid="uid://5sbjvbdndwu4" path="res://scripts/playerhumanmovement.cs" id="1_sce46"]
-[ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="2_ch7bk"]
 [ext_resource type="Script" uid="uid://cg7dp2kwuajuq" path="res://scripts/camera2d.cs" id="3_0xl5a"]
-<<<<<<< Updated upstream
-
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758 groups=["player"]]
-script = ExtResource("1_sce46")
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=780672855]
-texture = ExtResource("2_ch7bk")
-=======
 [ext_resource type="Texture2D" uid="uid://berwmjlnxgjvn" path="res://art/MainPerson/gg1.png" id="3_ybmhf"]
-[ext_resource type="Texture2D" uid="uid://bls56hm76icoq" path="res://art/MainPerson/gg2.png" id="4_walk"]
+[ext_resource type="Texture2D" uid="uid://bls56hm76icoq" path="res://art/MainPerson/gg2.png" id="4_8dkqa"]
+[ext_resource type="Texture2D" uid="uid://bnhl8l3h0j3ja" path="res://art/MainPerson/gg3.png" id="5_g6ewy"]
+[ext_resource type="Texture2D" uid="uid://b830o7ueci81j" path="res://art/MainPerson/gg5.png" id="7_bqr83"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_m33sw"]
 animations = [{
@@ -20,29 +13,45 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_ybmhf")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("4_walk")
+"texture": ExtResource("4_8dkqa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ybmhf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_g6ewy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ybmhf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_bqr83")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
-"speed": 8.0
+"speed": 5.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(32, 56)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_j8m2y"]
+height = 50.0
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758 groups=["player"]]
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758]
 script = ExtResource("1_sce46")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1847562911]
-position = Vector2(0, 4)
-shape = SubResource("RectangleShape2D_player")
->>>>>>> Stashed changes
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
 script = ExtResource("3_0xl5a")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=254585395]
+z_index = 5
+sprite_frames = SubResource("SpriteFrames_m33sw")
+animation = &"walk"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1550340214]
+position = Vector2(0, -1)
+shape = SubResource("CapsuleShape2D_j8m2y")
