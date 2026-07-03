@@ -1,14 +1,48 @@
-[gd_scene format=3 uid="uid://b2dgaynigvlj2"]
+[gd_scene load_steps=5 format=3 uid="uid://b2dgaynigvlj2"]
 
 [ext_resource type="Script" uid="uid://5sbjvbdndwu4" path="res://scripts/playerhumanmovement.cs" id="1_sce46"]
 [ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="2_ch7bk"]
 [ext_resource type="Script" uid="uid://cg7dp2kwuajuq" path="res://scripts/camera2d.cs" id="3_0xl5a"]
+<<<<<<< Updated upstream
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758 groups=["player"]]
 script = ExtResource("1_sce46")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=780672855]
 texture = ExtResource("2_ch7bk")
+=======
+[ext_resource type="Texture2D" uid="uid://berwmjlnxgjvn" path="res://art/MainPerson/gg1.png" id="3_ybmhf"]
+[ext_resource type="Texture2D" uid="uid://bls56hm76icoq" path="res://art/MainPerson/gg2.png" id="4_walk"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_m33sw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ybmhf")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_walk")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 56)
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758 groups=["player"]]
+script = ExtResource("1_sce46")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1847562911]
+position = Vector2(0, 4)
+shape = SubResource("RectangleShape2D_player")
+>>>>>>> Stashed changes
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
 script = ExtResource("3_0xl5a")

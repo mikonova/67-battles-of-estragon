@@ -1,29 +1,51 @@
 [gd_scene load_steps=4 format=3 uid="uid://bv18rg1qfx1dc"]
 
+<<<<<<< Updated upstream
 [ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_ek4rn"]
 [ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(320, 112)
+=======
+[ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
+>>>>>>> Stashed changes
 
-[node name="Node2D" type="Node2D" unique_id=246083452]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
+size = Vector2(668, 229)
 
-[node name="CharacterBody2D" parent="." unique_id=1740445758 instance=ExtResource("1_ek4rn")]
-position = Vector2(115, 193)
+[node name="MainStage" type="Node2D" unique_id=246083452]
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=742600850]
-offset_left = 194.0
+[node name="PlayArea" type="ColorRect" parent="." unique_id=742600850]
+offset_left = -154.0
 offset_top = 139.0
 offset_right = 514.0
+<<<<<<< Updated upstream
 offset_bottom = 251.0
+=======
+offset_bottom = 369.0
+>>>>>>> Stashed changes
 color = Color(0.2, 0.6, 0.3, 0.25)
 
 [node name="WanderBounds" type="Area2D" parent="." unique_id=1982736451]
 position = Vector2(354, 195)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WanderBounds" unique_id=1293847562]
+<<<<<<< Updated upstream
 shape = SubResource("RectangleShape2D_wander")
 
 [node name="Monster" parent="." unique_id=3847562910 instance=ExtResource("2_monster")]
 WanderBoundsPath = NodePath("../WanderBounds")
 WanderArea = Rect2(194, 139, 320, 112)
+=======
+position = Vector2(-174, 58.5)
+shape = SubResource("RectangleShape2D_wander")
+
+[node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
+position = Vector2(354, 195)
+
+[node name="Monster" parent="." unique_id=-447404386 instance=ExtResource("2_monster")]
+position = Vector2(297, -447)
+WanderArea = Rect2(194, 139, 320, 112)
+WanderBoundsPath = NodePath("../WanderBounds")
+>>>>>>> Stashed changes
