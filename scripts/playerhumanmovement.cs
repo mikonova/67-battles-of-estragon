@@ -2,6 +2,9 @@ using Godot;
 
 public partial class playerhumanmovement : CharacterBody2D
 {
+	[Signal]
+	public delegate void FearMaxedEventHandler();
+
 	private static readonly StringName BigBushName = "BigBush";
 	private static readonly StringName CampfireGroup = "campfire";
 
@@ -29,6 +32,7 @@ public partial class playerhumanmovement : CharacterBody2D
 	[Export] public float FearDrainRate = 18f;
 	[Export] public float CampfireFearDrainRate = 28f;
 	[Export] public float MonsterHitFearPercent = 30f;
+	[Export] public bool UseStressTransform = true;
 	[Export] public NodePath DeadMenuPath;
 
 	[Export] public AudioStream StepSound;
@@ -164,6 +168,17 @@ public partial class playerhumanmovement : CharacterBody2D
 		_fear = MaxFear;
 		_fearBar.Value = MaxFear;
 
+		if (UseStressTransform)
+		{
+			EmitSignal(SignalName.FearMaxed);
+			return;
+		}
+
+		ShowDeadMenu();
+	}
+
+	private void ShowDeadMenu()
+	{
 		DeadMenu deadMenu = ResolveDeadMenu();
 		if (deadMenu != null)
 		{
@@ -172,6 +187,26 @@ public partial class playerhumanmovement : CharacterBody2D
 		}
 
 		GD.PushError("playerhumanmovement: не найден DeadMenu для экрана смерти.");
+	}
+
+	public void RestoreFromTransform(Vector2 position, float fear = 0f)
+	{
+		ProcessMode = ProcessModeEnum.Inherit;
+		GlobalPosition = position;
+		_fearMaxed = false;
+		_fear = fear;
+		_fearBar.Value = fear;
+
+		if (IsHiding)
+		{
+			StopHiding();
+		}
+
+		GetNode<CanvasLayer>("FearHud").Visible = true;
+		_animatedSprite.Visible = true;
+		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = false;
+		Velocity = Vector2.Zero;
+		_animatedSprite.Play("idle");
 	}
 
 	public void AddFearFromMonsterHit()

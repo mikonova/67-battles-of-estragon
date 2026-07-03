@@ -3,8 +3,13 @@ using System;
 
 public partial class HumanNpc : CharacterBody2D
 {
+	[Signal]
+	public delegate void EscapedToBottomEventHandler();
+
 	[Export] public float WalkSpeed = 80.0f;
 	[Export] public float RunAwaySpeed = 220.0f;
+	[Export] public Vector2 IdleMoveDirection = Vector2.Down;
+	[Export] public float EscapeBottomY;
 
 	private AnimatedSprite2D _animatedSprite;
 	private Node2D _monster;
@@ -13,6 +18,7 @@ public partial class HumanNpc : CharacterBody2D
 
 	private float _runAfterLoseTimer = 0f;
 	private Vector2 _lastRunDirection = Vector2.Down;
+	private bool _escaped;
 
 	public override void _Ready()
 	{
@@ -40,16 +46,68 @@ public partial class HumanNpc : CharacterBody2D
 		}
 		else
 		{
-			MoveDown();
+			MoveIdle();
 		}
 
 		UpdateAnimation();
 		MoveAndSlide();
+		CheckEscape();
 	}
 
-	private void MoveDown()
+	private void CheckEscape()
 	{
-		Velocity = Vector2.Down * WalkSpeed;
+		if (_escaped)
+		{
+			return;
+		}
+
+		if (EscapeBottomY > 0f && GlobalPosition.Y >= EscapeBottomY)
+		{
+			TriggerEscape();
+			return;
+		}
+
+		for (int i = 0; i < GetSlideCollisionCount(); i++)
+		{
+			KinematicCollision2D collision = GetSlideCollision(i);
+			Node collider = collision.GetCollider() as Node;
+			if (collider == null)
+			{
+				continue;
+			}
+
+			bool isMapCollision = collider.Name == "Collisions"
+				|| collider.GetParent()?.Name == "Collisions";
+
+			if (!isMapCollision)
+			{
+				continue;
+			}
+
+			if (Velocity.Y > 1f || collision.GetNormal().Y < -0.1f)
+			{
+				TriggerEscape();
+				return;
+			}
+		}
+	}
+
+	private void TriggerEscape()
+	{
+		_escaped = true;
+		Velocity = Vector2.Zero;
+		EmitSignal(SignalName.EscapedToBottom);
+	}
+
+	private void MoveIdle()
+	{
+		Vector2 direction = IdleMoveDirection;
+		if (direction.LengthSquared() < 0.01f)
+		{
+			direction = Vector2.Down;
+		}
+
+		Velocity = direction.Normalized() * WalkSpeed;
 	}
 
 	private void RunAwayFromMonster()

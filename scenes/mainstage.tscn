@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://c5o8yxhwb2ut" path="res://scenes/pause_menu.tscn" id="9_pause"]
 [ext_resource type="PackedScene" uid="uid://dns6wkkx6rawq" path="res://scenes/deadmenu.tscn" id="10_deadmenu"]
 [ext_resource type="Script" path="res://scripts/GameTimer.cs" id="11_gametimer"]
+[ext_resource type="Script" path="res://scripts/StressTransformController.cs" id="12_transform"]
+[ext_resource type="PackedScene" uid="uid://bd0tslyubi63u" path="res://scenes/Monster_player.tscn" id="13_monster_player"]
+[ext_resource type="PackedScene" uid="uid://b4s5wux2tsv2i" path="res://scenes/human_npc.tscn" id="14_human_npc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
@@ -36,6 +39,19 @@ WanderBoundsPath = NodePath("../WanderBounds")
 SkitzSound = ExtResource("6_skitz")
 HeartSound = ExtResource("7_heart")
 BackgroundMusic = ExtResource("8_music")
+
+[node name="StressTransformController" type="Node" parent="."]
+script = ExtResource("12_transform")
+PlayerPath = NodePath("../Player")
+EncounterControllerPath = NodePath("../MonsterEncounterController")
+DeadMenuPath = NodePath("../UI/DeadMenu")
+BottomBarrierPath = NodePath("../ForestTrailMap/Collisions/BottomBarrier")
+MonsterPlayerScene = ExtResource("13_monster_player")
+HumanNpcScene = ExtResource("14_human_npc")
+FleeingHumanIdleDirection = Vector2(0, 1)
+MonsterSpawnOffsetY = -75.0
+FleeingHumanWalkSpeed = 140.0
+FleeingHumanRunSpeed = 300.0
 
 [node name="UI" type="CanvasLayer" parent="."]
 

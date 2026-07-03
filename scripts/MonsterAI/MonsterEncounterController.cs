@@ -17,6 +17,7 @@ public partial class MonsterEncounterController : Node
 	[Export] public AudioStream SkitzSound;
 	[Export] public AudioStream HeartSound;
 	[Export] public AudioStream BackgroundMusic;
+	[Export] public AudioStream MonsterTransformMusic;
 	[Export] public float SkitzVolumeDb = -10f;
 	[Export] public float HeartVolumeDb = 5f;
 	[Export] public float BackgroundMusicVolumeDb = -6f;
@@ -40,7 +41,7 @@ public partial class MonsterEncounterController : Node
 			return;
 		}
 
-		CacheCampfires();
+		CallDeferred(MethodName.CacheCampfires);
 
 		if (MonsterScene == null)
 		{
@@ -60,6 +61,11 @@ public partial class MonsterEncounterController : Node
 		if (BackgroundMusic == null)
 		{
 			BackgroundMusic = GD.Load<AudioStream>("res://sounds/anxious_1.ogg");
+		}
+
+		if (MonsterTransformMusic == null)
+		{
+			MonsterTransformMusic = GD.Load<AudioStream>("res://sounds/agressive_1.ogg");
 		}
 
 		_skitzPlayer = CreateAudioPlayer("SkitzPlayer", SkitzSound, SkitzVolumeDb, false);
@@ -165,6 +171,47 @@ public partial class MonsterEncounterController : Node
 		_activeMonster.LeftMap += OnMonsterLeftMap;
 	}
 
+	public void StopEncounters()
+	{
+		_encounterTimer?.Stop();
+		StopSkitz();
+		StopHeart();
+		StopBackgroundMusic();
+
+		if (_activeMonster != null && GodotObject.IsInstanceValid(_activeMonster))
+		{
+			_activeMonster.QueueFree();
+			_activeMonster = null;
+		}
+
+		_encounterInProgress = false;
+		SetProcess(false);
+	}
+
+	public void ResumeEncounters()
+	{
+		SetProcess(true);
+		RestoreNormalMusic();
+		ScheduleNextEncounter();
+	}
+
+	public void StopMusic()
+	{
+		StopSkitz();
+		StopHeart();
+		StopBackgroundMusic();
+	}
+
+	public void PlayTransformMusic()
+	{
+		PlayBackgroundMusic(MonsterTransformMusic);
+	}
+
+	public void RestoreNormalMusic()
+	{
+		PlayBackgroundMusic(BackgroundMusic);
+	}
+
 	private void OnMonsterLeftMap()
 	{
 		StopSkitz();
@@ -177,11 +224,24 @@ public partial class MonsterEncounterController : Node
 
 	private void StartBackgroundMusic()
 	{
-		if (_musicPlayer.Playing)
+		PlayBackgroundMusic(BackgroundMusic);
+	}
+
+	private void PlayBackgroundMusic(AudioStream stream)
+	{
+		if (stream == null)
 		{
 			return;
 		}
 
+		_musicPlayer.Stop();
+
+		if (stream is AudioStreamOggVorbis ogg)
+		{
+			ogg.Loop = true;
+		}
+
+		_musicPlayer.Stream = stream;
 		_musicPlayer.Play();
 	}
 
@@ -228,39 +288,13 @@ public partial class MonsterEncounterController : Node
 	private void CacheCampfires()
 	{
 		_campfires.Clear();
-		Node sceneRoot = GetTree().CurrentScene;
-		if (sceneRoot == null)
-		{
-			return;
-		}
 
-		CollectCampfires(sceneRoot, _campfires);
-	}
-
-	private static void CollectCampfires(Node node, List<Cumpfire> campfires)
-	{
-		if (node is Cumpfire campfire)
+		foreach (Node node in GetTree().GetNodesInGroup("campfire"))
 		{
-			campfires.Add(campfire);
-		}
-
-		foreach (Node child in node.GetChildren())
-		{
-			if (ShouldSkipCampfireSearch(child))
+			if (node is Cumpfire campfire && GodotObject.IsInstanceValid(campfire))
 			{
-				continue;
+				_campfires.Add(campfire);
 			}
-
-			CollectCampfires(child, campfires);
 		}
-	}
-
-	private static bool ShouldSkipCampfireSearch(Node node)
-	{
-		return node.Name == "Decorations"
-			|| node.Name == "Trees"
-			|| node.Name == "Bushes"
-			|| node.Name == "PathDetails"
-			|| node.Name == "Clearings";
 	}
 }
