@@ -77,7 +77,7 @@ radius = 31.144823
 radius = 77.00649
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c7ri7"]
-radius = 230.3671
+radius = 122.40915
 
 [node name="Cumpfire" type="Node2D" unique_id=1821674515]
 script = ExtResource("1_ixsfi")
