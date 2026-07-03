@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://daagvagi0gst5"]
+
+[ext_resource type="Script" uid="uid://d1vvn28yum4ui" path="res://scripts/Item.cs" id="1_j3wwg"]
+[ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="2_bx46p"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_h0yph"]
+radius = 52.611786
+
+[node name="Item" type="Node2D" unique_id=301700785]
+script = ExtResource("1_j3wwg")
+
+[node name="Label" type="Label" parent="." unique_id=236955861]
+offset_left = -4.0
+offset_top = 30.0
+offset_right = 36.0
+offset_bottom = 53.0
+text = "E"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1542443265]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_bx46p")
+
+[node name="PickupArea" type="Area2D" parent="." unique_id=310892922]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=292499057]
+shape = SubResource("CircleShape2D_h0yph")
