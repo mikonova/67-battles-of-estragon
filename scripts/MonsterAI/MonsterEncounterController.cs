@@ -15,13 +15,16 @@ public partial class MonsterEncounterController : Node
 	[ExportGroup("Audio")]
 	[Export] public AudioStream SkitzSound;
 	[Export] public AudioStream HeartSound;
+	[Export] public AudioStream BackgroundMusic;
 	[Export] public float SkitzVolumeDb = -10f;
 	[Export] public float HeartVolumeDb = 5f;
+	[Export] public float BackgroundMusicVolumeDb = -6f;
 
 	private Node2D _player;
 	private Monster _activeMonster;
 	private AudioStreamPlayer _skitzPlayer;
 	private AudioStreamPlayer _heartPlayer;
+	private AudioStreamPlayer _musicPlayer;
 	private Timer _encounterTimer;
 	private bool _isFirstEncounter = true;
 	private bool _encounterInProgress;
@@ -50,13 +53,20 @@ public partial class MonsterEncounterController : Node
 			HeartSound = GD.Load<AudioStream>("res://sounds/heart.ogg");
 		}
 
+		if (BackgroundMusic == null)
+		{
+			BackgroundMusic = GD.Load<AudioStream>("res://sounds/anxious_1.ogg");
+		}
+
 		_skitzPlayer = CreateAudioPlayer("SkitzPlayer", SkitzSound, SkitzVolumeDb, false);
 		_heartPlayer = CreateAudioPlayer("HeartPlayer", HeartSound, HeartVolumeDb, true);
+		_musicPlayer = CreateAudioPlayer("BackgroundMusic", BackgroundMusic, BackgroundMusicVolumeDb, true);
 
 		_encounterTimer = new Timer { OneShot = true };
 		_encounterTimer.Timeout += OnEncounterTimerTimeout;
 		AddChild(_encounterTimer);
 
+		StartBackgroundMusic();
 		ScheduleNextEncounter();
 	}
 
@@ -123,6 +133,7 @@ public partial class MonsterEncounterController : Node
 
 		_encounterInProgress = true;
 		_isFirstEncounter = false;
+		StopBackgroundMusic();
 
 		if (_skitzPlayer.Stream != null)
 		{
@@ -153,7 +164,28 @@ public partial class MonsterEncounterController : Node
 		StopHeart();
 		_activeMonster = null;
 		_encounterInProgress = false;
+		StartBackgroundMusic();
 		ScheduleNextEncounter();
+	}
+
+	private void StartBackgroundMusic()
+	{
+		if (_musicPlayer.Playing)
+		{
+			return;
+		}
+
+		_musicPlayer.Play();
+	}
+
+	private void StopBackgroundMusic()
+	{
+		if (!_musicPlayer.Playing)
+		{
+			return;
+		}
+
+		_musicPlayer.Stop();
 	}
 
 	private void StopSkitz()
