@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dns6wkkx6rawq"]
+
+[ext_resource type="Texture2D" uid="uid://bujda6p15xe4s" path="res://art/DeadMenu/deadmenu.png" id="1_88uk0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s5nq0"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vvca3"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rffso"]
+bg_color = Color(0.6, 0.6, 0.6, 0.09411765)
+
+[node name="deadmenu" type="Control" unique_id=774793170]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="." unique_id=1160411915]
+layout_mode = 0
+offset_right = 1917.0
+offset_bottom = 1093.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5nq0")
+
+[node name="Mainmeny" type="Sprite2D" parent="Panel" unique_id=1311927021]
+position = Vector2(956.6702, 541.00006)
+scale = Vector2(0.96434957, 0.96434945)
+texture = ExtResource("1_88uk0")
+
+[node name="Button" type="Button" parent="Panel/Mainmeny" unique_id=549463125]
+offset_left = -174.90573
+offset_top = 234.35477
+offset_right = 169.36777
+offset_bottom = 298.64688
+theme_override_styles/normal = SubResource("StyleBoxFlat_vvca3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rffso")
+
+[node name="Button2" type="Button" parent="Panel/Mainmeny" unique_id=856603006]
+offset_left = -174.90573
+offset_top = 302.79474
+offset_right = 169.36777
+offset_bottom = 367.08685
+theme_override_styles/normal = SubResource("StyleBoxFlat_vvca3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rffso")
+
+[node name="Button3" type="Button" parent="Panel/Mainmeny" unique_id=1654786024]
+offset_left = -174.90573
+offset_top = 363.9759
+offset_right = 169.36777
+offset_bottom = 428.268
+theme_override_styles/normal = SubResource("StyleBoxFlat_vvca3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_rffso")

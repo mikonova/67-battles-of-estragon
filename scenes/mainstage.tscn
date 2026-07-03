@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://bv18rg1qfx1dc"]
+[gd_scene format=3 uid="uid://bv18rg1qfx1dc"]
 
 [ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
@@ -24,6 +24,6 @@ shape = SubResource("RectangleShape2D_wander")
 [node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
 position = Vector2(149, 143.5)
 
-[node name="Monster" parent="." unique_id=3847562910 instance=ExtResource("2_monster")]
-WanderBoundsPath = NodePath("../WanderBounds")
+[node name="Monster" parent="." unique_id=-447404386 instance=ExtResource("2_monster")]
 WanderArea = Rect2(-122, -40, 542, 367)
+WanderBoundsPath = NodePath("../WanderBounds")
