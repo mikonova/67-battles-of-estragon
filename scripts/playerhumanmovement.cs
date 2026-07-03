@@ -6,92 +6,80 @@ public partial class playerhumanmovement : CharacterBody2D
 	private static readonly StringName BigBushName = "BigBush";
 
 	private AnimatedSprite2D _animatedSprite;
+	private ProgressBar _fearBar;
 	private Area2D _collisionChecker;
-	public const float Speed = 300.0f;
+	private Area2D _fearCollisionChecker;
+	private Cumpfire? _campfireNearest;
+	public const float Speed = 200.0f;
 	public int SpeedModifier = 1;
-	public enum SpeedModifierPredefined
-	{
-		Still = 0,
-		Default,
-		Double
-	}
+	public enum SpeedModifierPredefined { Still = 0, Default, Double }
 	public bool IsHiding;
+	private float _fear = 0.0f;
+	private float depletionRate = 20f;
+	private float fearIncreaseRate = 3f;
+	private float _timer = 0.0f;
+	private Area2D _campfireArea;
+	
+	private void _areaEntered(Area2D area)
+	{
+		if (area.Name == "plus_sainiyty_area")
+			_campfireArea = area;
+	}
 
 	public override void _Ready()
 	{
 		AddToGroup("player");
+		_fearBar = GetNode<ProgressBar>("FearBar");
 		_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		_collisionChecker = GetNode<Area2D>("PlayerCollisionChecker");
+		_fearCollisionChecker = GetNode<Area2D>("FearCollisionChecker");
+		_fearCollisionChecker.AreaEntered += _areaEntered;
+		_fearBar.MaxValue = 100f;
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Vector2 direction = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
-		Velocity = direction * Speed * SpeedModifier;
-
-		if (direction != Vector2.Zero)
+		float deltaF = (float)delta;
+		_fear += fearIncreaseRate * deltaF;
+		_fear = Mathf.Min(_fear, 100f);
+		if (_campfireArea != null)
 		{
-			_animatedSprite.Play("walk");
-		}
-		else
-		{
-			_animatedSprite.Play("idle");
-		}
-
-		if (direction.X > 0)
-		{
-			_animatedSprite.FlipH = false;
-		}
-		else if (direction.X < 0)
-		{
-			_animatedSprite.FlipH = true;
-		}
-
-		MoveAndSlide();
-
-		if (!Input.IsActionJustPressed("interact"))
-		{
-			return;
-		}
-
-		if (IsHiding)
-		{
-			StopHiding();
-			return;
-		}
-
-		if (IsInBigBush())
-		{
-			StartHiding();
-		}
-	}
-
-	private bool IsInBigBush()
-	{
-		foreach (Area2D area in _collisionChecker.GetOverlappingAreas())
-		{
-			if (area.Name == BigBushName || area.IsInGroup("big_bush"))
+			_campfireNearest = _campfireArea.GetParent<Cumpfire>();
+			if (_campfireNearest != null && _campfireNearest.fire && _fear > 0f)
 			{
-				return true;
+				_fear -= depletionRate * deltaF;
+				_fear = Mathf.Max(_fear, 0f);
 			}
 		}
-
-		return false;
+		_fearBar.Value = _fear;
+		Vector2 direction = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
+		Velocity = direction * Speed * SpeedModifier;
+		if (direction != Vector2.Zero)
+			_animatedSprite.Play("walk");
+		else
+			_animatedSprite.Play("idle");
+		if (direction.X > 0)
+			_animatedSprite.FlipH = false;
+		else if (direction.X < 0)
+			_animatedSprite.FlipH = true;
+		MoveAndSlide();
 	}
 
-	private void StartHiding()
+	public bool IsInBigBush()
 	{
-		SpeedModifier = (int)SpeedModifierPredefined.Still;
+		var overlappingAreas = _collisionChecker.GetOverlappingAreas();
+		return overlappingAreas.OfType<Area2D>().Any(a => a.Name == BigBushName || a.IsInGroup("big_bush"));
+	}
+
+	public void StartHiding()
+	{
 		IsHiding = true;
-		_animatedSprite.Visible = false;
-		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = true;
+		SpeedModifier = (int)SpeedModifierPredefined.Still;
 	}
 
-	private void StopHiding()
+	public void StopHiding()
 	{
-		SpeedModifier = (int)SpeedModifierPredefined.Default;
 		IsHiding = false;
-		_animatedSprite.Visible = true;
-		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = false;
+		SpeedModifier = (int)SpeedModifierPredefined.Default;
 	}
 }

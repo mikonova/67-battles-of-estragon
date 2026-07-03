@@ -44,8 +44,17 @@ height = 50.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_m33sw"]
 radius = 43.046486
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_2fovf"]
+radius = 36.878178
+
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758]
 script = ExtResource("1_sce46")
+
+[node name="FearBar" type="ProgressBar" parent="." unique_id=1111738017]
+offset_left = -941.0
+offset_top = -522.0
+offset_right = -674.0
+offset_bottom = -438.0
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
 script = ExtResource("3_0xl5a")
@@ -63,8 +72,12 @@ shape = SubResource("CapsuleShape2D_j8m2y")
 [node name="PlayerCollisionChecker" type="Area2D" parent="." unique_id=485232386]
 collision_layer = 0
 collision_mask = 2
-monitoring = true
 monitorable = false
 
 [node name="CheckerShape" type="CollisionShape2D" parent="PlayerCollisionChecker" unique_id=988692206]
 shape = SubResource("CircleShape2D_m33sw")
+
+[node name="FearCollisionChecker" type="Area2D" parent="." unique_id=1944672833]
+
+[node name="FearCheckerShape" type="CollisionShape2D" parent="FearCollisionChecker" unique_id=1679192725]
+shape = SubResource("CircleShape2D_2fovf")
