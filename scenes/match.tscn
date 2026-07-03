@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://mmqurmy52wwq"]
+
+[ext_resource type="Texture2D" uid="uid://ggre86qkaktp" path="res://art/other/matchbox.png" id="1_80q71"]
+
+[node name="Node2D" type="Node2D" unique_id=201889279]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1062014861]
+
+[node name="Area2D" type="Area2D" parent="StaticBody2D" unique_id=2108889444]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/Area2D" unique_id=1266733109]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=26571701]
+scale = Vector2(0.10173612, 0.09305555)
+texture = ExtResource("1_80q71")
