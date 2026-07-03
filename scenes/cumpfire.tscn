@@ -76,6 +76,9 @@ radius = 31.144823
 [sub_resource type="CircleShape2D" id="CircleShape2D_3fx2x"]
 radius = 77.00649
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_c7ri7"]
+radius = 230.3671
+
 [node name="Cumpfire" type="Node2D" unique_id=1821674515]
 script = ExtResource("1_ixsfi")
 
@@ -90,12 +93,17 @@ animation = &"idle"
 shape = SubResource("CircleShape2D_2sbeh")
 
 [node name="Timer" type="Timer" parent="." unique_id=156759369]
-wait_time = 5.0
+wait_time = 60.0
 one_shot = true
 
 [node name="act_area" type="Area2D" parent="." unique_id=861455573]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="act_area" unique_id=1142421593]
 shape = SubResource("CircleShape2D_3fx2x")
+
+[node name="plus_saniyty_area" type="Area2D" parent="." unique_id=1829065109]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="plus_saniyty_area" unique_id=742208295]
+shape = SubResource("CircleShape2D_c7ri7")
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
