@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://dqsiknar6s7ox"]
 
+[ext_resource type="Script" uid="uid://c2xsdyg1vltwe" path="res://scripts/Cumpfire.cs" id="1_ixsfi"]
 [ext_resource type="Texture2D" uid="uid://c75iybudhtajw" path="res://art/campfire/cf4.png" id="1_jwl47"]
 [ext_resource type="Texture2D" uid="uid://du1bfr6gvbqfd" path="res://art/campfire/cf5.png" id="2_ixsfi"]
 [ext_resource type="Texture2D" uid="uid://ftuasqdxsciq" path="res://art/campfire/cf6.png" id="3_1pfd3"]
@@ -22,7 +23,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_1pfd3")
 }],
-"loop": 1,
+"loop": 2,
 "name": &"default",
 "speed": 3.0
 }, {
@@ -39,9 +40,17 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("6_52yuk")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"end",
 "speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_fepk4")
+}],
+"loop": 0,
+"name": &"idle",
+"speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -56,7 +65,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("1_jwl47")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"start",
 "speed": 2.0
 }]
@@ -64,14 +73,29 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_2sbeh"]
 radius = 31.144823
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_3fx2x"]
+radius = 77.00649
+
 [node name="Cumpfire" type="Node2D" unique_id=1821674515]
+script = ExtResource("1_ixsfi")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1933691692]
+position = Vector2(-3, -3)
 sprite_frames = SubResource("SpriteFrames_2sbeh")
-animation = &"end"
-frame_progress = 0.6645674
+animation = &"idle"
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1379467331]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1020836710]
 shape = SubResource("CircleShape2D_2sbeh")
+
+[node name="Timer" type="Timer" parent="." unique_id=156759369]
+wait_time = 5.0
+one_shot = true
+
+[node name="act_area" type="Area2D" parent="." unique_id=861455573]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="act_area" unique_id=1142421593]
+shape = SubResource("CircleShape2D_3fx2x")
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

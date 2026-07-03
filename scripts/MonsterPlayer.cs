@@ -36,7 +36,7 @@ public override void _PhysicsProcess(double delta)
 		Velocity = Velocity.MoveToward(Vector2.Zero, Friction * deltaF);
 	}
 
-	LookAt(mousePosition);
+	//LookAt(mousePosition);
 	
 	if (Velocity.Length() > 10.0f)
 	{
