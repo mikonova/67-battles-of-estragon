@@ -10,8 +10,9 @@
 [ext_resource type="Texture2D" uid="uid://cdft73wf64pae" path="res://art/Monster/mn2.png" id="8_wv2gs"]
 [ext_resource type="Texture2D" uid="uid://b5tqklbyte8fj" path="res://art/Monster/mn3.png" id="9_rjmpm"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2sbeh"]
-size = Vector2(127, 126)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_jwl47"]
+radius = 20.5
+height = 70.0
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_2sbeh"]
 animations = [{
@@ -80,7 +81,7 @@ script = ExtResource("1_ai0pd")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1379772773]
 position = Vector2(0.5, 0)
-shape = SubResource("RectangleShape2D_2sbeh")
+shape = SubResource("CapsuleShape2D_jwl47")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=222796651]
 
