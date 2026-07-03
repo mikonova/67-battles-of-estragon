@@ -1,14 +1,27 @@
 [gd_scene format=3 uid="uid://b2dgaynigvlj2"]
 
 [ext_resource type="Script" uid="uid://5sbjvbdndwu4" path="res://scripts/playerhumanmovement.cs" id="1_sce46"]
-[ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="2_ch7bk"]
 [ext_resource type="Script" uid="uid://cg7dp2kwuajuq" path="res://scripts/camera2d.cs" id="3_0xl5a"]
+[ext_resource type="Texture2D" uid="uid://berwmjlnxgjvn" path="res://art/MainPerson/gg1.png" id="3_ybmhf"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_m33sw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ybmhf")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}]
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1740445758]
 script = ExtResource("1_sce46")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=780672855]
-texture = ExtResource("2_ch7bk")
-
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1557086297]
 script = ExtResource("3_0xl5a")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=254585395]
+z_index = 5
+sprite_frames = SubResource("SpriteFrames_m33sw")
+animation = &"idle"
