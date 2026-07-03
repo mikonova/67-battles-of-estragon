@@ -79,7 +79,7 @@ public partial class Monster : CharacterBody2D
 	private Node2D _player;
 	private Vector2 _leaveTarget;
 	private Vector2 _encounterCenter;
-	private readonly List<Vector2> _sweepWaypoints = new();
+	private readonly List<Vector2> _sweepWaypointOffsets = new();
 	private int _sweepIndex;
 
 	public State GetState() => _state;
@@ -175,6 +175,11 @@ public partial class Monster : CharacterBody2D
 
 	public void StartLeaving(MapSide? side = null)
 	{
+		if (EncounterMode)
+		{
+			UpdateEncounterCenter();
+		}
+
 		LeaveSide = side ?? LeaveSide;
 		_leaveTarget = EncounterMode
 			? GetLeavePositionFromCenter()
@@ -231,6 +236,11 @@ public partial class Monster : CharacterBody2D
 
 	private void ProcessEnter()
 	{
+		if (EncounterMode)
+		{
+			UpdateEncounterCenter();
+		}
+
 		Vector2 entryPoint = EncounterMode
 			? GetEncounterEntryPoint()
 			: GetEntryPointOnMap();
@@ -244,23 +254,52 @@ public partial class Monster : CharacterBody2D
 
 	private void ProcessSweep()
 	{
-		if (_sweepWaypoints.Count == 0)
+		UpdateEncounterCenter();
+
+		if (_sweepWaypointOffsets.Count == 0)
 		{
 			StartLeaving();
 			return;
 		}
 
-		Vector2 target = _sweepWaypoints[_sweepIndex];
+		Vector2 target = GetSweepWaypoint(_sweepIndex);
 		MoveToward(target, SweepSpeed);
 
 		if (GlobalPosition.DistanceTo(target) <= ArriveDistance)
 		{
 			_sweepIndex++;
-			if (_sweepIndex >= _sweepWaypoints.Count)
+			if (_sweepIndex >= _sweepWaypointOffsets.Count)
 			{
 				StartLeaving();
 			}
 		}
+	}
+
+	private void UpdateEncounterCenter()
+	{
+		Node2D player = GetEncounterPlayer();
+		if (player != null)
+		{
+			_encounterCenter = player.GlobalPosition;
+		}
+	}
+
+	private Node2D GetEncounterPlayer()
+	{
+		foreach (Node node in GetTree().GetNodesInGroup(PlayerGroup))
+		{
+			if (node is Node2D player)
+			{
+				return player;
+			}
+		}
+
+		return null;
+	}
+
+	private Vector2 GetSweepWaypoint(int index)
+	{
+		return _encounterCenter + _sweepWaypointOffsets[index];
 	}
 
 	private void ProcessWander(float delta)
@@ -407,13 +446,13 @@ public partial class Monster : CharacterBody2D
 
 	private void BuildSweepWaypoints()
 	{
-		_sweepWaypoints.Clear();
+		_sweepWaypointOffsets.Clear();
 
 		for (int i = 0; i < SweepWaypointCount; i++)
 		{
 			float angle = (float)GD.RandRange(0f, Mathf.Tau);
 			float radius = (float)GD.RandRange(SweepRadius * 0.45f, SweepRadius);
-			_sweepWaypoints.Add(_encounterCenter + Vector2.FromAngle(angle) * radius);
+			_sweepWaypointOffsets.Add(Vector2.FromAngle(angle) * radius);
 		}
 	}
 

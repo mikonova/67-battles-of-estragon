@@ -1,5 +1,4 @@
 using Godot;
-using System.Linq;
 
 public partial class playerhumanmovement : CharacterBody2D
 {
@@ -7,6 +6,7 @@ public partial class playerhumanmovement : CharacterBody2D
 
 	private AnimatedSprite2D _animatedSprite;
 	private Area2D _collisionChecker;
+	private AudioStreamPlayer _stepsPlayer;
 	public const float Speed = 300.0f;
 	public int SpeedModifier = 1;
 	public enum SpeedModifierPredefined
@@ -17,11 +17,15 @@ public partial class playerhumanmovement : CharacterBody2D
 	}
 	public bool IsHiding;
 
+	[Export] public AudioStream StepSound;
+	[Export] public float StepVolumeDb = -4f;
+
 	public override void _Ready()
 	{
 		AddToGroup("player");
 		_animatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		_collisionChecker = GetNode<Area2D>("PlayerCollisionChecker");
+		SetupStepSound();
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -32,10 +36,12 @@ public partial class playerhumanmovement : CharacterBody2D
 		if (direction != Vector2.Zero)
 		{
 			_animatedSprite.Play("walk");
+			UpdateStepSound(true);
 		}
 		else
 		{
 			_animatedSprite.Play("idle");
+			UpdateStepSound(false);
 		}
 
 		if (direction.X > 0)
@@ -85,6 +91,7 @@ public partial class playerhumanmovement : CharacterBody2D
 		IsHiding = true;
 		_animatedSprite.Visible = false;
 		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = true;
+		UpdateStepSound(false);
 	}
 
 	private void StopHiding()
@@ -93,5 +100,52 @@ public partial class playerhumanmovement : CharacterBody2D
 		IsHiding = false;
 		_animatedSprite.Visible = true;
 		GetNode<CollisionShape2D>("CollisionShape2D").Disabled = false;
+	}
+
+	private void SetupStepSound()
+	{
+		if (StepSound == null)
+		{
+			StepSound = GD.Load<AudioStream>("res://sounds/steps.ogg");
+		}
+
+		_stepsPlayer = new AudioStreamPlayer
+		{
+			Name = "StepsPlayer",
+			Stream = StepSound,
+			VolumeDb = StepVolumeDb
+		};
+
+		if (StepSound is AudioStreamOggVorbis ogg)
+		{
+			ogg.Loop = true;
+		}
+
+		AddChild(_stepsPlayer);
+	}
+
+	private void UpdateStepSound(bool isWalking)
+	{
+		if (_stepsPlayer == null || IsHiding || SpeedModifier == (int)SpeedModifierPredefined.Still)
+		{
+			if (_stepsPlayer != null && _stepsPlayer.Playing)
+			{
+				_stepsPlayer.Stop();
+			}
+
+			return;
+		}
+
+		if (isWalking)
+		{
+			if (!_stepsPlayer.Playing)
+			{
+				_stepsPlayer.Play();
+			}
+		}
+		else if (_stepsPlayer.Playing)
+		{
+			_stepsPlayer.Stop();
+		}
 	}
 }

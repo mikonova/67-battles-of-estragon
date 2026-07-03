@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="5_monster"]
 [ext_resource type="AudioStream" uid="uid://c002y0a0a68lv" path="res://sounds/skitz.ogg" id="6_skitz"]
 [ext_resource type="AudioStream" uid="uid://ug41sup860md" path="res://sounds/heart.ogg" id="7_heart"]
+[ext_resource type="AudioStream" uid="uid://cos48dxu4rhaw" path="res://sounds/anxious_1.ogg" id="8_music"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
@@ -23,16 +24,11 @@ shape = SubResource("RectangleShape2D_wander")
 [node name="Player" parent="." unique_id=1740445758 instance=ExtResource("1_player")]
 position = Vector2(0, 6220)
 
-[node name="MonsterEncounterController" type="Node" parent="."]
+[node name="MonsterEncounterController" type="Node" parent="." unique_id=1751531850]
 script = ExtResource("4_encounter")
 MonsterScene = ExtResource("5_monster")
 PlayerPath = NodePath("../Player")
 WanderBoundsPath = NodePath("../WanderBounds")
 SkitzSound = ExtResource("6_skitz")
 HeartSound = ExtResource("7_heart")
-SkitzVolumeDb = -10.0
-HeartVolumeDb = 5.0
-FirstEncounterMinDelay = 8.0
-FirstEncounterMaxDelay = 15.0
-RespawnMinDelay = 15.0
-RespawnMaxDelay = 40.0
+BackgroundMusic = ExtResource("8_music")
