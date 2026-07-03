@@ -1,0 +1,219 @@
+[gd_scene load_steps=15 format=3 uid="uid://bforesttrailmap01"]
+
+[ext_resource type="Script" path="res://scripts/map/forest_trail_map.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cj1r4ht8ee7tn" path="res://art/other/ot1.png" id="3_house"]
+[ext_resource type="Texture2D" uid="uid://dy6ma78wj7ahh" path="res://art/campfire/cf1.png" id="4_campfire"]
+[ext_resource type="Texture2D" uid="uid://bjcie76wyselb" path="res://art/other/ot5.png" id="5_match"]
+[ext_resource type="Texture2D" uid="uid://lglqu5avupd" path="res://art/Grass/gr1.png" id="6_grass1"]
+[ext_resource type="Texture2D" uid="uid://cqektkcigosr" path="res://art/Grass/gr2.png" id="7_grass2"]
+[ext_resource type="Texture2D" uid="uid://d1vxer8bu3bnb" path="res://art/Grass/gr3.png" id="8_grass3"]
+[ext_resource type="Texture2D" uid="uid://c4enrrmyd6l23" path="res://art/Grass/gr4.png" id="9_grass4"]
+[ext_resource type="Texture2D" uid="uid://co1p58xhvk80l" path="res://art/stones/st1.png" id="10_stone1"]
+[ext_resource type="Texture2D" uid="uid://ctpfkpky7xvv8" path="res://art/stones/st2.png" id="11_stone2"]
+[ext_resource type="Texture2D" uid="uid://dorqjaufinlag" path="res://art/stump/pn1.png" id="12_stump1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_left_wall"]
+size = Vector2(520, 6500)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_right_wall"]
+size = Vector2(520, 6500)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_house_block"]
+size = Vector2(120, 80)
+
+[node name="ForestTrailMap" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Ground" type="Node2D" parent="."]
+
+[node name="ForestFloor" type="Polygon2D" parent="Ground"]
+z_index = -10
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(-900, 0, 900, 0, 900, 6500, -900, 6500)
+
+[node name="Decorations" type="Node2D" parent="."]
+
+[node name="Trees" type="Node2D" parent="Decorations"]
+
+[node name="Bushes" type="Node2D" parent="Decorations"]
+
+[node name="PathDetails" type="Node2D" parent="Decorations"]
+
+[node name="Clearings" type="Node2D" parent="Decorations"]
+
+[node name="Clearing_1" type="Node2D" parent="Decorations/Clearings"]
+
+[node name="Grass1" type="Sprite2D" parent="Decorations/Clearings/Clearing_1"]
+position = Vector2(-20, 10)
+texture = ExtResource("6_grass1")
+
+[node name="Grass2" type="Sprite2D" parent="Decorations/Clearings/Clearing_1"]
+position = Vector2(25, -5)
+texture = ExtResource("7_grass2")
+
+[node name="Grass3" type="Sprite2D" parent="Decorations/Clearings/Clearing_1"]
+position = Vector2(0, 30)
+texture = ExtResource("8_grass3")
+
+[node name="Stone1" type="Sprite2D" parent="Decorations/Clearings/Clearing_1"]
+position = Vector2(40, 20)
+texture = ExtResource("10_stone1")
+
+[node name="Clearing_2" type="Node2D" parent="Decorations/Clearings"]
+
+[node name="Grass1" type="Sprite2D" parent="Decorations/Clearings/Clearing_2"]
+position = Vector2(-15, 5)
+texture = ExtResource("9_grass4")
+
+[node name="Grass2" type="Sprite2D" parent="Decorations/Clearings/Clearing_2"]
+position = Vector2(20, 15)
+texture = ExtResource("6_grass1")
+
+[node name="Stump1" type="Sprite2D" parent="Decorations/Clearings/Clearing_2"]
+position = Vector2(-35, 25)
+texture = ExtResource("12_stump1")
+
+[node name="Clearing_3" type="Node2D" parent="Decorations/Clearings"]
+
+[node name="Grass1" type="Sprite2D" parent="Decorations/Clearings/Clearing_3"]
+position = Vector2(10, 0)
+texture = ExtResource("7_grass2")
+
+[node name="Grass2" type="Sprite2D" parent="Decorations/Clearings/Clearing_3"]
+position = Vector2(-25, 20)
+texture = ExtResource("8_grass3")
+
+[node name="Stone2" type="Sprite2D" parent="Decorations/Clearings/Clearing_3"]
+position = Vector2(30, 10)
+texture = ExtResource("11_stone2")
+
+[node name="Clearing_4" type="Node2D" parent="Decorations/Clearings"]
+
+[node name="Grass1" type="Sprite2D" parent="Decorations/Clearings/Clearing_4"]
+position = Vector2(-10, 8)
+texture = ExtResource("9_grass4")
+
+[node name="Grass2" type="Sprite2D" parent="Decorations/Clearings/Clearing_4"]
+position = Vector2(18, -8)
+texture = ExtResource("6_grass1")
+
+[node name="Grass3" type="Sprite2D" parent="Decorations/Clearings/Clearing_4"]
+position = Vector2(5, 28)
+texture = ExtResource("7_grass2")
+
+[node name="Landmarks" type="Node2D" parent="."]
+
+[node name="House" type="Sprite2D" parent="Landmarks" groups=["house", "landmark"]]
+z_index = 4
+position = Vector2(0, 150)
+texture = ExtResource("3_house")
+
+[node name="Campfire4" type="Sprite2D" parent="Landmarks" groups=["campfire", "landmark"]]
+z_index = 3
+position = Vector2(0, 1105)
+texture = ExtResource("4_campfire")
+
+[node name="Campfire3" type="Sprite2D" parent="Landmarks" groups=["campfire", "landmark"]]
+z_index = 3
+position = Vector2(0, 2210)
+texture = ExtResource("4_campfire")
+
+[node name="Campfire2" type="Sprite2D" parent="Landmarks" groups=["campfire", "landmark"]]
+z_index = 3
+position = Vector2(0, 3315)
+texture = ExtResource("4_campfire")
+
+[node name="Campfire1" type="Sprite2D" parent="Landmarks" groups=["campfire", "landmark"]]
+z_index = 3
+position = Vector2(0, 4420)
+texture = ExtResource("4_campfire")
+
+[node name="Start" type="Marker2D" parent="Landmarks" groups=["start", "landmark"]]
+position = Vector2(0, 6220)
+
+[node name="StartArea" type="Node2D" parent="Landmarks"]
+position = Vector2(0, 6220)
+
+[node name="Grass1" type="Sprite2D" parent="Landmarks/StartArea"]
+position = Vector2(-50, 20)
+texture = ExtResource("9_grass4")
+
+[node name="Grass2" type="Sprite2D" parent="Landmarks/StartArea"]
+position = Vector2(55, 15)
+texture = ExtResource("6_grass1")
+
+[node name="Grass3" type="Sprite2D" parent="Landmarks/StartArea"]
+position = Vector2(0, 35)
+texture = ExtResource("7_grass2")
+
+[node name="MatchSpawns" type="Node2D" parent="."]
+
+[node name="MatchSpawn_1" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(-294, 520)
+
+[node name="MatchVisual_1" type="Sprite2D" parent="MatchSpawns/MatchSpawn_1"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_2" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(304, 975)
+
+[node name="MatchVisual_2" type="Sprite2D" parent="MatchSpawns/MatchSpawn_2"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_3" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(-284, 1560)
+
+[node name="MatchVisual_3" type="Sprite2D" parent="MatchSpawns/MatchSpawn_3"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_4" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(299, 2015)
+
+[node name="MatchVisual_4" type="Sprite2D" parent="MatchSpawns/MatchSpawn_4"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_5" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(-289, 2600)
+
+[node name="MatchVisual_5" type="Sprite2D" parent="MatchSpawns/MatchSpawn_5"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_6" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(294, 3055)
+
+[node name="MatchVisual_6" type="Sprite2D" parent="MatchSpawns/MatchSpawn_6"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_7" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(-279, 3640)
+
+[node name="MatchVisual_7" type="Sprite2D" parent="MatchSpawns/MatchSpawn_7"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="MatchSpawn_8" type="Marker2D" parent="MatchSpawns" groups=["match_spawn"]]
+position = Vector2(309, 4095)
+
+[node name="MatchVisual_8" type="Sprite2D" parent="MatchSpawns/MatchSpawn_8"]
+modulate = Color(1, 1, 1, 0.55)
+texture = ExtResource("5_match")
+
+[node name="Collisions" type="StaticBody2D" parent="."]
+
+[node name="LeftForestWall" type="CollisionShape2D" parent="Collisions"]
+position = Vector2(-640, 3250)
+shape = SubResource("RectangleShape2D_left_wall")
+
+[node name="RightForestWall" type="CollisionShape2D" parent="Collisions"]
+position = Vector2(640, 3250)
+shape = SubResource("RectangleShape2D_right_wall")
+
+[node name="HouseBlock" type="CollisionShape2D" parent="Collisions"]
+position = Vector2(0, 160)
+shape = SubResource("RectangleShape2D_house_block")
