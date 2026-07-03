@@ -50,6 +50,14 @@ public partial class Monster : CharacterBody2D
 	[ExportGroup("Leave")]
 	[Export] public MapSide LeaveSide = MapSide.Right;
 	[Export] public float LeaveOffset = 100f;
+	
+	[ExportGroup("Attack")]
+	[Export] public float BiteDistance = 45f;
+	[Export] public float BiteCooldown = 1.2f;
+
+	private AnimatedSprite2D _sprite;
+	private bool _isBiting = false;
+	private float _biteTimer = 0f;
 
 	private State _state = State.Enter;
 	private Vector2 _wanderTarget;
@@ -65,17 +73,28 @@ public partial class Monster : CharacterBody2D
 		GlobalPosition = GetSpawnPositionOutside();
 		_leaveTarget = GetLeavePositionOutside();
 		PickWanderTarget();
+		
+		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		_sprite.AnimationFinished += OnAnimationFinished;
+		PlayAnim("idle");
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
+		float deltaF = (float)delta;
+
+		if (_biteTimer > 0f)
+		{
+			_biteTimer -= deltaF;
+		}
+
 		switch (_state)
 		{
 			case State.Enter:
 				ProcessEnter();
 				break;
 			case State.Wander:
-				ProcessWander((float)delta);
+				ProcessWander(deltaF);
 				break;
 			case State.Chase:
 				ProcessChase();
@@ -175,6 +194,7 @@ public partial class Monster : CharacterBody2D
 		}
 
 		float distance = GlobalPosition.DistanceTo(_player.GlobalPosition);
+
 		if (distance > LosePlayerRange)
 		{
 			_player = null;
@@ -182,8 +202,32 @@ public partial class Monster : CharacterBody2D
 			return;
 		}
 
+		if (distance <= BiteDistance)
+		{
+			Bite();
+			return;
+		}
+
 		MoveToward(_player.GlobalPosition, ChaseSpeed);
 	}
+	
+	private void Bite()
+{
+	Velocity = Vector2.Zero;
+	MoveAndSlide();
+
+	if (_biteTimer > 0f || _isBiting)
+	{
+		return;
+	}
+
+	_isBiting = true;
+	_biteTimer = BiteCooldown;
+
+	PlayAnim("bite");
+
+	GD.Print("Монстр кусает игрока");
+}
 
 	private void ProcessLeave()
 	{
@@ -203,6 +247,11 @@ public partial class Monster : CharacterBody2D
 		if (offset.Length() <= ArriveDistance)
 		{
 			Velocity = Vector2.Zero;
+
+			if (!_isBiting)
+			{
+				PlayAnim("idle");
+			}
 		}
 		else
 		{
@@ -211,6 +260,11 @@ public partial class Monster : CharacterBody2D
 			if (RotateTowardMovement)
 			{
 				Rotation = offset.Angle();
+			}
+
+			if (!_isBiting)
+			{
+				PlayAnim("run");
 			}
 		}
 
@@ -332,5 +386,42 @@ public partial class Monster : CharacterBody2D
 		Vector2 globalPos = shapeNode.GlobalTransform * localRect.Position;
 		Vector2 globalEnd = shapeNode.GlobalTransform * localRect.End;
 		return new Rect2(globalPos, globalEnd - globalPos);
+	}
+	
+	private void PlayAnim(string animName)
+	{
+		if (_sprite == null)
+		{
+			return;
+		}
+
+		if (_sprite.SpriteFrames == null || !_sprite.SpriteFrames.HasAnimation(animName))
+		{
+			return;
+		}
+
+		if (_sprite.Animation == animName && _sprite.IsPlaying())
+		{
+			return;
+		}
+
+		_sprite.Play(animName);
+	}
+
+	private void OnAnimationFinished()
+	{
+		if (_sprite.Animation == "bite")
+		{
+			_isBiting = false;
+
+			if (Velocity.Length() > 5f)
+			{
+				PlayAnim("run");
+			}
+			else
+			{
+				PlayAnim("idle");
+			}
+		}
 	}
 }

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://b2dgaynigvlj2" path="res://scenes/playerhuman.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bx7m4n2k8wq1p" path="res://scenes/monster.tscn" id="2_monster"]
-[ext_resource type="PackedScene" uid="uid://bforesttrailmap01" path="res://scenes/map/forest_trail_map.tscn" id="3_map"]
+[ext_resource type="PackedScene" uid="uid://ca8qbi81njr8k" path="res://scenes/map/forest_trail_map.tscn" id="3_map"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wander"]
 size = Vector2(1800, 6500)
 
 [node name="MainStage" type="Node2D" unique_id=246083452]
 
-[node name="ForestTrailMap" parent="." instance=ExtResource("3_map")]
+[node name="ForestTrailMap" parent="." unique_id=1053670864 instance=ExtResource("3_map")]
 
 [node name="WanderBounds" type="Area2D" parent="." unique_id=1982736451]
 position = Vector2(0, 3250)
