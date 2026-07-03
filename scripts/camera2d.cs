@@ -19,10 +19,13 @@ public partial class camera2d : Camera2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (Mathf.Abs(_target.GlobalPosition.Y - _cameraPosY) > _deadZone)
-		{
-			_cameraPosY = _target.GlobalPosition.Y - _deadZone;
-		}
+		float targetY = _target.GlobalPosition.Y;
+
+		if (targetY > _cameraPosY + _deadZone)
+			_cameraPosY = targetY - _deadZone;
+		else if (targetY < _cameraPosY - _deadZone)
+			_cameraPosY = targetY + _deadZone;
+
 		GlobalPosition = new Vector2(_defaultCameraX, _cameraPosY);
 	}
 }
